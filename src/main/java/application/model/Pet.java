@@ -1,4 +1,4 @@
-package main.model;
+package main.java.application.model;
 
 public class Pet {
 
