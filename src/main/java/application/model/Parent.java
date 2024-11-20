@@ -1,4 +1,4 @@
-package application.model;
+package main.java.application.model;
 
 public class Parent {
     
