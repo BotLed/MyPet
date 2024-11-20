@@ -124,6 +124,10 @@ public class Pet {
         this.currentPetStates.clear();
         System.out.println("All pet states have been cleared.");
     }
+
+    public List<String> getGetAllPetStates() {
+        return this.currentPetStates;
+    }
     // ------
 
     
@@ -256,7 +260,7 @@ public class Pet {
         myPet.addPetState("angry");
         System.out.println(myPet.getMainPetState());
         
-        
+        System.out.println(myPet.getGetAllPetStates());
         
     }
 }
