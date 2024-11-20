@@ -58,10 +58,12 @@ public class Pet {
     }
     
     // CAN PROBABLY REMOVE THIS METHOD IN FAVOUR OF CALLING: if getMainPetState() != "normal", then throw some warning
-    public void warning() { 
-        // Interacts with feedback, throws a warning that pet stats are getting too low
-        // If stat too low then: 
-        return;
+    public boolean warning() { 
+       if (this.sleep < this.sleep * 0.25 || this.fullness < this.fullness * 0.25 || this.happiness < this.happiness * 0.25) {
+            return true;
+       }
+
+       return false;
     }
 
 
