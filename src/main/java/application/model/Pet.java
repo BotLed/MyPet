@@ -59,7 +59,7 @@ public class Pet {
     
     // CAN PROBABLY REMOVE THIS METHOD IN FAVOUR OF CALLING: if getMainPetState() != "normal", then throw some warning
     public boolean warning() { 
-       if (this.sleep < this.sleep * 0.25 || this.fullness < this.fullness * 0.25 || this.happiness < this.happiness * 0.25) {
+       if (this.sleep < 25 || this.fullness < 25 || this.happiness < 25 || this.health < 25) {
             return true;
        }
 
@@ -263,6 +263,9 @@ public class Pet {
         System.out.println(myPet.getMainPetState());
         
         System.out.println(myPet.getGetAllPetStates());
+
+        myPet.setHappiness(10);
+        System.out.println(myPet.warning());
         
     }
 }
