@@ -1,4 +1,4 @@
-package application;
+package application.view;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,6 +11,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.kordamp.ikonli.javafx.FontIcon;
+import javafx.stage.Stage;
+import javafx.stage.Modality;
+import javafx.stage.StageStyle;
+
+import application.components.SettingsModal;
 
 public class MainMenuScreen {
 
@@ -140,6 +145,11 @@ public class MainMenuScreen {
     
         
         StackPane settingsStack = new StackPane(settingsCircle, settingsIcon);
+
+        settingsStack.setOnMouseClicked(event -> {
+            // Create and show the modal
+            showSettingsModal();
+        });
         
         VBox settingsWrapper = new VBox(settingsStack);
         settingsWrapper.setAlignment(Pos.BOTTOM_RIGHT); 
@@ -148,6 +158,35 @@ public class MainMenuScreen {
         footer.setRight(settingsWrapper);
     
         return footer;
+    }
+
+    private void showSettingsModal() {
+        Stage modalStage = new Stage();
+        modalStage.initModality(Modality.APPLICATION_MODAL); // Block interactions with the parent stage
+        modalStage.initStyle(StageStyle.UNDECORATED); // No window borders
+    
+        // Modal content
+        VBox modalContent = new VBox(20);
+        modalContent.setAlignment(Pos.CENTER);
+        modalContent.setStyle("-fx-background-color: #ffffff; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 5);");
+        modalContent.setPrefSize(300, 200);
+    
+        // Title text for the modal
+        Text modalTitle = new Text("Settings");
+        modalTitle.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        modalTitle.setFill(Color.BLACK);
+    
+        // Done button to close the modal
+        Button doneButton = new Button("Done");
+        doneButton.setFont(Font.font("Arial", 16));
+        doneButton.setOnAction(e -> modalStage.close());
+    
+        modalContent.getChildren().addAll(modalTitle, doneButton);
+    
+        // Set up the scene and show the modal
+        Scene modalScene = new Scene(modalContent);
+        modalStage.setScene(modalScene);
+        modalStage.showAndWait(); // Wait for the modal to close
     }
     
     

@@ -11,6 +11,7 @@ dependencies {
     // JavaFX modules
     implementation 'org.openjfx:javafx-controls:23'
     implementation 'org.openjfx:javafx-fxml:23'
+    implementation 'org.openjfx:javafx-graphics:23'
     implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
     implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack:12.3.1'
 
@@ -27,7 +28,7 @@ java {
 javafx {
     // Specify the JavaFX version and modules to use
     version = '23'
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics' ]
 }
 
 application {
