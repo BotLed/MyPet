@@ -1,4 +1,4 @@
-package main.java.application;
+package application;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -7,18 +7,22 @@ import javafx.stage.Stage;
 
 public class GameLauncher extends Application {
 
-    private StackPane root;
-    private Scene scene;
+    public static final int WIDTH = 1200; 
+    public static final int HEIGHT = 800; 
 
     @Override
     public void start(Stage primaryStage) {
-        root = new StackPane();
-        scene = new Scene(root, 1200, 800);
-        //scene.getStylesheets().add(getClass().getResource("/styles/style.css").toExternalForm());
+        
+        MainMenuScreen mainMenu = new MainMenuScreen();
+        Scene scene = mainMenu.getScene();
+        
 
         // Set up the stage
         primaryStage.setTitle("My Pet Game");
         primaryStage.setScene(scene);
+        primaryStage.setWidth(WIDTH);
+        primaryStage.setHeight(HEIGHT);
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 

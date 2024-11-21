@@ -11,9 +11,8 @@ dependencies {
     // JavaFX modules
     implementation 'org.openjfx:javafx-controls:23'
     implementation 'org.openjfx:javafx-fxml:23'
-
-    // Additional libraries
-    implementation 'com.google.guava:guava:32.1.2-jre'
+    implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
+    implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack:12.3.1'
 
     // Testing framework
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
@@ -25,16 +24,26 @@ java {
     }
 }
 
+javafx {
+    // Specify the JavaFX version and modules to use
+    version = '23'
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
 application {
     // Define the main class for the application.
     mainClass = 'application.GameLauncher'
 }
 
-javafx {
-    version = '23'
-    modules = [ 'javafx.controls', 'javafx.fxml' ] // Add other JavaFX modules if needed
+tasks.withType(JavaExec) {
+    jvmArgs += [
+        '--add-modules', 'javafx.controls,javafx.fxml',
+        '--add-exports', 'javafx.graphics/com.sun.javafx.application=ALL-UNNAMED'
+    ]
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+
