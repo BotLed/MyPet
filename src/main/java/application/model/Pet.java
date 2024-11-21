@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.*;
 
 public class Pet {
     private String name;
@@ -26,7 +27,46 @@ public class Pet {
 
     // Idk what to do with this method, its late asf I'll figure it out later
     public void interactPet (String action) {
-        return;
+        List<String> allowedInteractions = Arrays.asList("go to bed",  "feed", "give gift", "take to the vet", "exercise");
+        switch (action) {
+            case "go to bed":
+                this.caseGoToBed();
+            case "feed":
+                // Will be implemented when inventory is done
+            case "give gift":
+                // Will be implemented when inventory is dne
+            case "take to the vet":
+                this.health = Math.min(this.sleep + 15, 100); // Should go on cooldown after using
+            case "play":
+                this.happiness = Math.min(this.sleep + 15, 100);
+            case "exercise":
+                this.health = Math.min(this.health + 5, 100);
+                this.sleep = Math.max(this.sleep - 5, 0);
+                this.fullness = Math.max(this.fullness - 5, 0);
+            default:
+                System.out.println("ERROR: input is not one of the supported interactions: " + allowedInteractions);
+        }
+
+    }
+
+    private void caseGoToBed() {
+        while (this.sleep < 100) {
+            try {
+                // Wait for 2 seconds
+                Thread.sleep(2000);
+
+                // Increase sleep by 5
+                this.sleep = Math.min(this.sleep + 5, 100); // Ensures sleep doesn't exceed 100
+
+                // Print the current sleep value for debugging
+                System.out.println("Sleep is now: " + this.sleep);
+            } catch (InterruptedException e) {
+                System.out.println("Sleep interrupted: " + e.getMessage());
+                break; // Exit the loop if interrupted
+            }
+        }
+
+        this.removePetState("sleeping");
     }
 
 
@@ -39,7 +79,33 @@ public class Pet {
         this.sleep = this.sleep - random.nextInt(UPPER_BOUND);
         this.fullness = this.fullness - random.nextInt(UPPER_BOUND);
         this.happiness = this.happiness - random.nextInt(UPPER_BOUND);
+
+        this.sleep = Math.max(this.sleep, 0);
+        this.fullness = Math.max(this.fullness, 0);
+        this.happiness = Math.max(this.happiness, 0);
+
+        checkAndAddState();
     }
+
+    private void checkAndAddState() {
+        // Clears existing states that depend on stats
+        this.clearPetStates();
+    
+        // Checks each stat and update states
+        if (this.health <= 0) {
+            this.addPetState("dead");
+        } else {
+            if (this.sleep <= 0) {
+                this.addPetState("sleeping");
+            }
+            if (this.fullness <= 0) {
+                this.addPetState("hungry");
+            }
+            if (this.happiness <= 0) {
+                this.addPetState("angry");
+            }
+        }
+    }    
 
 
     public String getMainPetState() { // CHANGED FROM updatePetState() to instead return the main pet state that the pet is currently in
@@ -227,6 +293,8 @@ public class Pet {
 
 
     // Main method with a couple tests I ran, feel free to add your own and check if everything works ok
+    // UNCOMMENT TO RUN TESTS
+    /* 
     public static void main(String[] args) {
 
         List<String> states = new ArrayList<>();
@@ -266,6 +334,24 @@ public class Pet {
 
         myPet.setHappiness(10);
         System.out.println(myPet.warning());
+
+        System.out.println("\n");
+        List<String> states2 = new ArrayList<>();
+        Pet myPet2 = new Pet("my pet", "pet 1",5, 5, 5, 5, states2);
+        myPet2.adjustStats();
+        System.out.println("Sleep: " + myPet2.getSleep());
+        System.out.println("Fullness: " + myPet2.getFullness());
+        System.out.println("Happiness: " + myPet2.getHappiness());
+        System.out.println("Current States: " + myPet2.getGetAllPetStates());
+
+        myPet2.interactPet("exercise");
+        System.out.println("Sleep: " + myPet2.getSleep());
+        myPet2.adjustStats();
+        System.out.println("Current States: " + myPet2.getGetAllPetStates());
+        myPet2.interactPet("invalid input");
+        myPet2.interactPet("go to bed");
         
     }
+    */
 }
+   
