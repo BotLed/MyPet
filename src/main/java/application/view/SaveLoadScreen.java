@@ -1,5 +1,6 @@
 package application.view;
 
+import application.GameLauncher;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -19,10 +20,12 @@ import javafx.stage.Stage;
 
 public class SaveLoadScreen {
 
+    private GameLauncher gameLauncher;
     private Stage stage;
 
-    public SaveLoadScreen(Stage stage) {
-        this.stage = stage;
+    public SaveLoadScreen(GameLauncher gameLauncher) {
+        this.gameLauncher = gameLauncher;
+
     }
 
     public Scene getScene() {
@@ -46,18 +49,15 @@ public class SaveLoadScreen {
         Button closeButton = new Button("X");
         closeButton.setFont(Font.font("Arial", FontWeight.BOLD, 30));
         closeButton.setStyle(
-            "-fx-background-color: #ffffff; " +
-            "-fx-border-color: #cccccc; " +
-            "-fx-border-radius: 50; " +
-            "-fx-background-radius: 50; " +
-            "-fx-min-width: 70; " +
-            "-fx-min-height: 70; " +
-            "-fx-text-fill: black;"
-        );
-        closeButton.setOnAction(e -> {
-            System.out.println("DEBUG: X Button clicked");
-            stage.setScene(new MainMenuScreen().getScene());
-        });
+                "-fx-background-color: #ffffff; " +
+                        "-fx-border-color: #cccccc; " +
+                        "-fx-border-radius: 50; " +
+                        "-fx-background-radius: 50; " +
+                        "-fx-min-width: 70; " +
+                        "-fx-min-height: 70; " +
+                        "-fx-text-fill: black;");
+        closeButton.setOnAction(e -> gameLauncher.showMainMenu()); // Navigate back to the main menu
+
         StackPane.setAlignment(closeButton, Pos.TOP_LEFT);
         StackPane.setMargin(closeButton, new Insets(20, 0, 0, 20));
 
@@ -81,7 +81,8 @@ public class SaveLoadScreen {
 
         slotContainer.getChildren().add(createSaveSlot(1, null, null)); // Empty slot
         slotContainer.getChildren().add(createSaveSlot(2, "Fluffy", new Image("BoJack.png"))); // Slot with saved game
-        slotContainer.getChildren().add(createSaveSlot(3, "Buddy", new Image("BoJack.png"))); // Another slot with saved game
+        slotContainer.getChildren().add(createSaveSlot(3, "Buddy", new Image("BoJack.png"))); // Another slot with saved
+                                                                                              // game
 
         return slotContainer;
     }
@@ -91,7 +92,8 @@ public class SaveLoadScreen {
         slotWithLabel.setAlignment(Pos.CENTER);
 
         StackPane slotBox = new StackPane();
-        slotBox.setStyle("-fx-background-color: #dcdcdc; -fx-border-color: #aaaaaa; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 3);");
+        slotBox.setStyle(
+                "-fx-background-color: #dcdcdc; -fx-border-color: #aaaaaa; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 3);");
         slotBox.setPrefSize(300, 500);
 
         Text saveInfo = new Text(petName == null ? "Empty" : petName);
@@ -101,7 +103,8 @@ public class SaveLoadScreen {
         if (petName == null) {
             Button newSaveButton = new Button("+");
             newSaveButton.setFont(Font.font("Arial", FontWeight.BOLD, 80));
-            newSaveButton.setStyle("-fx-background-color: #dcdcdc; -fx-border-color: #aaaaaa; -fx-border-radius: 50; -fx-text-fill: black;");
+            newSaveButton.setStyle(
+                    "-fx-background-color: #dcdcdc; -fx-border-color: #aaaaaa; -fx-border-radius: 50; -fx-text-fill: black;");
             newSaveButton.setOnAction(e -> {
                 System.out.println("DEBUG: + Button clicked for Slot " + slotNumber);
                 openNewGameConfirmation(slotNumber);
@@ -151,6 +154,7 @@ public class SaveLoadScreen {
         startButton.setOnAction(e -> {
             System.out.println("Starting a new game in slot " + slotNumber);
             modalStage.close();
+            gameLauncher.showGameplay(true);
         });
 
         HBox buttonBox = new HBox(20, cancelButton, startButton);
@@ -189,6 +193,7 @@ public class SaveLoadScreen {
         resumeButton.setOnAction(e -> {
             System.out.println("Resuming game for " + petName);
             modalStage.close();
+            gameLauncher.showGameplay(false, petName);
         });
 
         HBox buttonBox = new HBox(20, cancelButton, resumeButton);
