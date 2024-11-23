@@ -76,25 +76,52 @@ public class MainMenuScreen {
         return menuBox;
     }
 
-    // Method to create a single menu item with a specific icon
-    private HBox createMenuItem(String text, String iconLiteral) {
-        HBox menuItemBox = new HBox(20); // Horizontal box for icon and text
-        menuItemBox.setAlignment(Pos.CENTER_LEFT);
+    // Method to create a single menu item with a specific icon and add event handling
+private HBox createMenuItem(String text, String iconLiteral) {
+    HBox menuItemBox = new HBox(20); // Horizontal box for icon and text
+    menuItemBox.setAlignment(Pos.CENTER_LEFT);
 
-        // Create icon for the menu item
-        FontIcon menuIcon = new FontIcon(iconLiteral);
-        menuIcon.setIconSize(35); 
-        menuIcon.setIconColor(Color.BLACK); 
+    // Create icon for the menu item
+    FontIcon menuIcon = new FontIcon(iconLiteral);
+    menuIcon.setIconSize(35); 
+    menuIcon.setIconColor(Color.BLACK); 
 
-        // Create menu text
-        Text menuText = new Text(text);
-        menuText.setFont(Font.font("Arial", 36)); 
+    // Create menu text
+    Text menuText = new Text(text);
+    menuText.setFont(Font.font("Arial", 36)); 
 
-        // Add the icon and text to the menu item box
-        menuItemBox.getChildren().addAll(menuIcon, menuText);
+    // Add the icon and text to the menu item box
+    menuItemBox.getChildren().addAll(menuIcon, menuText);
 
-        return menuItemBox;
-    }
+    // Event handling for menu item clicks
+    menuItemBox.setOnMouseClicked(event -> {
+        Stage stage = (Stage) menuItemBox.getScene().getWindow(); // Get the current stage
+        switch (text) {
+            case "Load Game":
+                SaveLoadScreen saveLoadScreen = new SaveLoadScreen(stage);
+                stage.setScene(saveLoadScreen.getScene()); // Navigate to SaveLoadScreen
+                break;
+            case "Start":
+                // Logic for starting the game
+                System.out.println("Game started!");
+                break;
+            case "Tutorial":
+                // Logic for navigating to the tutorial screen
+                System.out.println("Tutorial screen opened!");
+                break;
+            case "Parent Zone":
+                // Logic for navigating to the parental control screen
+                System.out.println("Parent Zone opened!");
+                break;
+            case "Exit":
+                // Logic for exiting the game
+                stage.close();
+                break;
+        }
+    });
+
+    return menuItemBox;
+}
 
     private StackPane createImagePlaceholder() {
         // Placeholder box

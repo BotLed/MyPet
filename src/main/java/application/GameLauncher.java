@@ -1,10 +1,9 @@
 package application;
 
+import application.view.MainMenuScreen;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import application.view.MainMenuScreen;
 
 
 public class GameLauncher extends Application {
