@@ -1,46 +1,61 @@
 package application.components;
 
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.geometry.Insets;
 
-public class SettingsModal {
+public class SettingsModal extends StackPane {
 
-    public void show(Stage parentStage) {
-        // Create a new stage for the modal
-        Stage modalStage = new Stage();
-        modalStage.initModality(Modality.APPLICATION_MODAL); // Block interactions with the parent
-        modalStage.initOwner(parentStage);
-        modalStage.initStyle(StageStyle.UNDECORATED); // Remove default window borders
+    private Runnable onDoneAction; // Action to perform when "Done" is clicked
 
-        // Modal content layout
+    public SettingsModal() {
+        this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);"); // Dim background
+        this.setAlignment(Pos.CENTER); // Center modal on screen
+        this.setVisible(false); // Initially hidden
+
         VBox modalContent = new VBox(20);
-        modalContent.setStyle("-fx-background-color: #ffffff; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 5);");
         modalContent.setAlignment(Pos.CENTER);
-        modalContent.setPrefSize(300, 200);
+        modalContent.setStyle(
+                "-fx-background-color: #ffffff; " +
+                        "-fx-border-radius: 15; " + // Rounded corners
+                        "-fx-background-radius: 15; " + // Rounded corners for the background
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 20, 0, 0, 10);");
+        modalContent.setPadding(new Insets(30));
+        modalContent.setMaxWidth(400);
+        modalContent.setMaxHeight(200);
 
-        // "Done" button
+        Text modalTitle = new Text("Volume Controls");
+        modalTitle.setFont(Font.font("Arial", 24));
+        modalTitle.setStyle("-fx-font-weight: bold;");
+
         Button doneButton = new Button("Done");
-        doneButton.setFont(Font.font("Arial", 16));
-        doneButton.setOnAction(event -> modalStage.close());
+        doneButton.setStyle(
+                "-fx-background-color: #638EFB; " + // Green background
+                        "-fx-text-fill: #ffffff; " + // White text
+                        "-fx-background-radius: 15; " + // Rounded corners
+                        "-fx-padding: 10 20;");
+        doneButton.setOnAction(e -> {
+            if (onDoneAction != null)
+                onDoneAction.run(); // Execute onDoneAction
+        });
 
-        // Add content to modal
-        Text title = new Text("Settings");
-        title.setFont(Font.font("Arial", 20));
-        title.setFill(Color.BLACK);
+        modalContent.getChildren().addAll(modalTitle, doneButton);
+        this.getChildren().add(modalContent);
+    }
 
-        modalContent.getChildren().addAll(title, doneButton);
+    public void setOnDoneAction(Runnable action) {
+        this.onDoneAction = action;
+    }
 
-        // Create and set the scene for the modal
-        Scene scene = new Scene(modalContent);
-        modalStage.setScene(scene);
-        modalStage.showAndWait(); // Display the modal and wait until it is closed
+    public void show() {
+        this.setVisible(true);
+    }
+
+    public void hide() {
+        this.setVisible(false);
     }
 }
