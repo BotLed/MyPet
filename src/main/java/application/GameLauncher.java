@@ -2,6 +2,7 @@ package application;
 
 import application.view.GameplayScreen;
 import application.view.MainMenuScreen;
+import application.view.ParentalControlScreen;
 import application.view.SaveLoadScreen;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -48,6 +49,11 @@ public class GameLauncher extends Application {
     public void showSaveLoadScreen() {
         SaveLoadScreen saveLoadScreen = new SaveLoadScreen(this);
         primaryStage.setScene(saveLoadScreen.getScene());
+    }
+
+    public void showParentalControlScreen() {
+        ParentalControlScreen parentalControlScreen = new ParentalControlScreen(this, primaryStage);
+        primaryStage.setScene(parentalControlScreen.getScene());
     }
 
     public static void main(String[] args) {

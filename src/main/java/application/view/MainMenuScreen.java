@@ -121,6 +121,7 @@ public class MainMenuScreen {
                     break;
                 case "Parent Zone":
                     System.out.println("Parent Zone opened!");
+                    gameLauncher.showParentalControlScreen();
                     break;
                 case "Exit":
                     System.exit(0);
