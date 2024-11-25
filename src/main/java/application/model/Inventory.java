@@ -1,5 +1,5 @@
-package main.java.application.model;
+package application.model;
 
 public class Inventory {
-    
+
 }
