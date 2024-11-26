@@ -1,3 +1,4 @@
+package application.model;
 /**
  * This class represents the Player. 
  * Each player has a specific name, score, current pet and matching inventory.
@@ -15,10 +16,10 @@ public class Player {
      * Constructor creates a player with the given name
      * @param name the name of the player (String)
      */
-    public Player(String name){
+    public Player(String name, Pet pet){
         this.name = name;
         score = 0;
-        currentPet = new Pet();
+        currentPet = pet;
     }
     /**
      * Accessor method to get the players name 
