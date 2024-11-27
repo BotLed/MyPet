@@ -1,11 +1,6 @@
 package application.view;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import application.GameLauncher;
 import javafx.geometry.Insets;
@@ -50,7 +45,7 @@ public class ParentalControlScreen {
             createPasswordAuthenticationScreen(contentContainer);
         } else {
             // Password setup screen
-            createPasswordSetupScreen(contentContainer);
+            createPasswordAuthenticationScreen(contentContainer);
         }
 
         // Add both content and overlay to the StackPane
@@ -86,88 +81,6 @@ public class ParentalControlScreen {
         return closeButton;
     }
 
-    // Create password setup screen
-    private void createPasswordSetupScreen(VBox mainContainer) {
-        mainContainer.getChildren().clear(); // Clear existing content
-
-        // Create the square box layout
-        VBox box = new VBox(20);
-        box.setPadding(new Insets(20));
-        box.setAlignment(Pos.CENTER);
-        box.setStyle(
-                "-fx-background-color: #f0f0f0; -fx-border-color: #cccccc; -fx-border-radius: 10; -fx-background-radius: 10;");
-        box.setMaxWidth(400);
-        box.setMaxHeight(400);
-
-        // Add lock image
-        Label lockIcon = new Label("\uD83D\uDD12"); // Unicode for lock icon
-        lockIcon.setStyle("-fx-font-size: 60; -fx-text-fill: #555;");
-
-        // Title
-        Label titleLabel = new Label("Set Password");
-        titleLabel.setStyle("-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: black;");
-
-        // Password input field
-        PasswordField passwordField = new PasswordField();
-        passwordField.setPromptText("Enter new password");
-        passwordField.setStyle(
-                "-fx-font-size: 16; " +
-                        "-fx-padding: 10; " +
-                        "-fx-border-color: #cccccc; " +
-                        "-fx-border-radius: 5; " +
-                        "-fx-background-radius: 5; " +
-                        "-fx-background-color: #ffffff;");
-
-        // Confirm button
-        Button confirmButton = new Button("Confirm");
-        confirmButton.setStyle(
-                "-fx-font-size: 18; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-padding: 10 30; " +
-                        "-fx-background-color: #d3d3d3; " +
-                        "-fx-text-fill: #333333; " +
-                        "-fx-border-radius: 20; " +
-                        "-fx-background-radius: 20;");
-
-        confirmButton.setOnAction(e -> {
-            String password = passwordField.getText();
-            if (!password.isEmpty()) {
-                // Save password
-                savePassword(password);
-                mainContainer.getChildren().clear(); // Clear setup screen
-                createPasswordAuthenticationScreen(mainContainer); // Move to authentication screen
-            } else {
-                // Handle empty password case
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Password cannot be empty!", ButtonType.OK);
-                alert.showAndWait();
-            }
-        });
-
-        // Add components to the box
-        box.getChildren().addAll(lockIcon, titleLabel, passwordField, confirmButton);
-
-        // Add the box to the main container
-        mainContainer.getChildren().add(box);
-    }
-
-    // Save password to a file
-    private void savePassword(String password) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("parent_password.txt"))) {
-            writer.write(password);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Load the stored password from file
-    private String loadPassword() {
-        try {
-            return new String(Files.readAllBytes(Paths.get("parent_password.txt"))).trim();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
 
     // Create password authentication screen
     private void createPasswordAuthenticationScreen(VBox mainContainer) {
@@ -214,7 +127,7 @@ public class ParentalControlScreen {
 
         confirmButton.setOnAction(e -> {
             String enteredPassword = passwordField.getText();
-            String storedPassword = loadPassword();
+            String storedPassword = "password";
 
             if (enteredPassword.equals(storedPassword)) {
                 // Proceed to parental control sections
