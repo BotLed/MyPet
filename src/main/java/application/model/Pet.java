@@ -2,9 +2,7 @@ package application.model;
 
 import java.util.Random;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.*;
 
 
 public class Pet {
@@ -38,8 +36,10 @@ public class Pet {
         List<String> allowedGifts = Arrays.asList("toy", "play place", "ball");
 
         switch (action) {
+
             case "go to bed":
                 this.caseGoToBed();
+                break;
 
             case "feed":
                 try {
@@ -50,6 +50,7 @@ public class Pet {
 
                     inv.useItem(item, 1); // Try to consume 1 unit of the item
                     this.caseFeed(item); // Line 121
+                    this.checkAndAddState(); // checking if states need to be updated
                 } catch (Exception e) {
                     System.out.println("Error feeding pet: " + e.getMessage());
                 }
@@ -64,21 +65,26 @@ public class Pet {
 
                 inv.useItem(item, 1); // Try to consume 1 unit of the item
                 this.caseGift(item); // Line 126
+                this.checkAndAddState(); // checking if states need to be updated
             } catch (Exception e) {
                 System.out.println("Error gifting pet: " + e.getMessage());
             }
             break;
-            
+
             case "take to the vet":
                 this.health = Math.min(this.sleep + 15, 100); // Should go on cooldown after using
+                break;
 
             case "play":
                 this.happiness = Math.min(this.sleep + 15, 100);
+                break;
 
             case "exercise":
                 this.health = Math.min(this.health + 5, 100);
                 this.sleep = Math.max(this.sleep - 5, 0);
                 this.fullness = Math.max(this.fullness - 5, 0);
+                break;
+
             default:
                 System.out.println("ERROR: input is not one of the supported interactions: " + allowedInteractions);
         }
@@ -129,13 +135,13 @@ public class Pet {
     private void caseGift(String giftItem) {
         switch(giftItem) {
             case "toy":
-                this.fullness = Math.min(this.fullness + 5, 100); // Adjust fullness
+                this.fullness = Math.min(this.happiness + 5, 100); // Adjust fullness
                 break;
             case "ball":
-                this.fullness = Math.min(this.fullness + 10, 100); // Adjust fullness
+                this.fullness = Math.min(this.happiness + 10, 100); // Adjust fullness
                 break;
             case "play place":
-                this.fullness = Math.min(this.fullness + 15, 100); // Adjust fullness
+                this.fullness = Math.min(this.happiness + 15, 100); // Adjust fullness
                 break;
             default:
                 System.out.println("ERROR: something happened during execution of 'gift' switch block");
@@ -363,79 +369,6 @@ public class Pet {
 
     public void setHappiness(int happiness) {
         this.happiness = happiness;
-    }
-    // ------
-
-
-    // Main method with a couple tests I ran, feel free to add your own and check if everything works ok
-    // UNCOMMENT TO RUN TESTS
-    
-    public static void main(String[] args) {
-
-        List<String> states = new ArrayList<>();
-        Pet myPet = new Pet("my pet", "pet 1", 100, 100, 100, 100, states);
-
-        System.out.println("\nTest to check if states are adjusted properly");
-        myPet.adjustStats();
-        System.out.println("Sleep: " + myPet.getSleep());
-        System.out.println("Fullness: " + myPet.getFullness());
-        System.out.println("Happiness: " + myPet.getHappiness());
-
-        myPet.adjustStats();
-        System.out.println("Sleep: " + myPet.getSleep());
-        System.out.println("Fullness: " + myPet.getFullness());
-        System.out.println("Happiness: " + myPet.getHappiness());
-
-        System.out.println("\nTest to check if duplicate states can be added");
-        myPet.addPetState("dead");
-        myPet.addPetState("dead");
-
-        System.out.println("\nTest to check if duplicate state can be added");
-        myPet.addPetState("invalid input");
-
-        System.out.println("\nTest to check if state is succesfully detected");
-        myPet.addPetState("hungry");
-        System.out.println(myPet.isHungry());
-        myPet.removePetState("hungry");
-        System.out.println(myPet.isHungry());
-
-        System.out.println("\nTest to check if the main state is correctly found");
-        myPet.clearPetStates();
-        myPet.addPetState("hungry");
-        myPet.addPetState("angry");
-        System.out.println(myPet.getMainPetState());
-        
-        System.out.println(myPet.getGetAllPetStates());
-
-        myPet.setHappiness(10);
-        System.out.println(myPet.warning());
-
-        System.out.println("\n");
-        List<String> states2 = new ArrayList<>();
-        Pet myPet2 = new Pet("my pet", "pet 1",5, 5, 5, 5, states2);
-        myPet2.adjustStats();
-        System.out.println("Sleep: " + myPet2.getSleep());
-        System.out.println("Fullness: " + myPet2.getFullness());
-        System.out.println("Happiness: " + myPet2.getHappiness());
-        System.out.println("Current States: " + myPet2.getGetAllPetStates());
-
-        Inventory myInventory = new Inventory();
-        myPet2.interactPet("exercise", "", myInventory);
-        System.out.println("Sleep: " + myPet2.getSleep());
-        myPet2.adjustStats();
-        System.out.println("Current States: " + myPet2.getGetAllPetStates());
-        myPet2.interactPet("invalid input", "", myInventory);
-        //myPet2.interactPet("go to bed", "", myInventory);
-        try {
-            myInventory.addItem("vegetable", 0);
-        } catch (Exception e) {
-            System.out.println("Item not supported!");
-        }
-        
-        System.out.println(myInventory.getFoodItems());
-        myPet2.interactPet("feed", "vegetable", myInventory);
-
-        
     }
 }
    
