@@ -4,6 +4,7 @@ import application.view.GameplayScreen;
 import application.view.MainMenuScreen;
 import application.view.ParentalControlScreen;
 import application.view.SaveLoadScreen;
+import application.view.TutorialScreen;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -54,6 +55,11 @@ public class GameLauncher extends Application {
     public void showParentalControlScreen() {
         ParentalControlScreen parentalControlScreen = new ParentalControlScreen(this, primaryStage);
         primaryStage.setScene(parentalControlScreen.getScene());
+    }
+    
+    public void showTutorialScreen() {
+        TutorialScreen tutorialScreen = new TutorialScreen(this);
+        primaryStage.setScene(tutorialScreen.getScene());
     }
 
     public static void main(String[] args) {

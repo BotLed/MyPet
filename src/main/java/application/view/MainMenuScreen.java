@@ -1,18 +1,23 @@
 package application.view;
 
+import org.kordamp.ikonli.javafx.FontIcon;
+
+import application.GameLauncher;
+import application.components.SettingsModal;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import org.kordamp.ikonli.javafx.FontIcon;
-import application.GameLauncher;
-import application.components.SettingsModal;
 
 public class MainMenuScreen {
 
@@ -118,6 +123,7 @@ public class MainMenuScreen {
                     break;
                 case "Tutorial":
                     System.out.println("Tutorial screen opened!");
+                    gameLauncher.showTutorialScreen();
                     break;
                 case "Parent Zone":
                     System.out.println("Parent Zone opened!");
