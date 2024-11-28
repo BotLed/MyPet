@@ -3,6 +3,7 @@ package application.view;
 import org.kordamp.ikonli.javafx.FontIcon;
 import application.GameLauncher;
 import application.components.SettingsModal;
+import application.components.StatModal;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -13,6 +14,7 @@ import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 
 public class GameplayScreen {
 
@@ -25,6 +27,8 @@ public class GameplayScreen {
     private TextField nameInput;
     private SettingsModal settingsModal;
     private VBox contentLayout;
+    private StackPane statsContainer;
+    private StatModal statModal;
 
     public GameplayScreen(GameLauncher gameLauncher, boolean isNewGame, String petName) {
         this.gameLauncher = gameLauncher;
@@ -38,47 +42,69 @@ public class GameplayScreen {
     }
 
     private void initializeScreen() {
+        // Create the root container
         root = new VBox();
         root.setPadding(new Insets(0));
         root.setStyle("-fx-background-color: #f5f5f5;");
         root.setAlignment(Pos.TOP_CENTER);
 
+        // StackPane for layered layout
         StackPane layeredLayout = new StackPane();
         layeredLayout.setStyle("-fx-background-color: transparent;");
         layeredLayout.setPrefSize(1200, 800);
 
+        // Initialize content layout (main game area)
         contentLayout = new VBox();
         contentLayout.setAlignment(Pos.TOP_CENTER);
         contentLayout.setPadding(new Insets(20));
 
-        if (isNewGame) {
-            setupPetSelection(contentLayout);
-        } else {
-            setupMainGameplay(contentLayout, petName);
-        }
-
+        // Add content layout to the layered layout
         layeredLayout.getChildren().add(contentLayout);
 
+        // Initialize stats container
+        statsContainer = createStatsContainer();
+        statsContainer.setVisible(false); // Hidden by default
+        statsContainer.setMouseTransparent(true); // Allow interaction
+        layeredLayout.getChildren().add(statsContainer); // Add statsContainer to the StackPane
+        StackPane.setAlignment(statsContainer, Pos.BOTTOM_LEFT);
+        StackPane.setMargin(statsContainer, new Insets(20, 0, 20, 20)); // Positioning for stats bars
+
+        // Initialize the naming modal
         setupNamingModal();
+        namingModal.setVisible(false); // Initially hidden
         layeredLayout.getChildren().add(namingModal);
 
-        // Add settings modal to the layered layout
-        if (settingsModal == null) {
-            settingsModal = new SettingsModal();
-            settingsModal.setVisible(false); // Initially hidden
-            settingsModal.setOnDoneAction(() -> {
-                System.out.println("Settings modal closed.");
-                settingsModal.setVisible(false);
-            });
-        }
+        // Initialize and add the settings modal
+        settingsModal = new SettingsModal();
+        settingsModal.setVisible(false); // Hidden initially
+        settingsModal.setOnDoneAction(() -> {
+            System.out.println("Settings modal closed.");
+            settingsModal.setVisible(false);
+        });
         layeredLayout.getChildren().add(settingsModal);
 
+        // Initialize and add the stat modal
+        statModal = new StatModal();
+        statModal.setVisible(false); // Hidden initially
+        layeredLayout.getChildren().add(statModal);
+
+        // Add the settings button
         Button settingsButton = createSettingsButton();
         layeredLayout.getChildren().add(settingsButton);
         StackPane.setAlignment(settingsButton, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(settingsButton, new Insets(20));
 
+        // Add the layered layout to the root
         root.getChildren().add(layeredLayout);
+
+        // Handle new game or resume game
+        if (isNewGame) {
+            setupPetSelection(contentLayout); // Add pet selection for new games
+        } else {
+            // Properly handle existing games
+            setupMainGameplay(contentLayout, petName);
+            statsContainer.setVisible(true); // Show stats for existing games
+        }
     }
 
     private void setupPetSelection(VBox contentLayout) {
@@ -246,50 +272,121 @@ public class GameplayScreen {
         namingModal.setVisible(false);
     }
 
-    private void setupMainGameplay(VBox contentLayout, String petName) {
-        contentLayout.getChildren().clear(); // Clear existing content in the layout
+    public void setupMainGameplay(VBox root, String petName) {
+        root.getChildren().clear(); // Clear previous content
 
-        // Top bar with back button and pet info
-        HBox topBar = new HBox(10);
+        // Top bar with back button and welcome message
+        HBox topBar = new HBox();
         topBar.setAlignment(Pos.CENTER_LEFT);
-        topBar.setPadding(new Insets(20));
-
-        // Back button with circle background and shadow
-        StackPane backButtonContainer = new StackPane();
-        Circle backButtonCircle = new Circle(25, Color.WHITE);
-        backButtonCircle.setEffect(new DropShadow(10, Color.GRAY));
-
-        FontIcon backIcon = new FontIcon("fas-chevron-left");
-        backIcon.setIconSize(20);
-        backIcon.setIconColor(Color.BLACK);
+        topBar.setPadding(new Insets(10));
+        topBar.setSpacing(10);
 
         Button backButton = new Button();
-        backButton.setGraphic(backIcon);
-        backButton.setStyle("-fx-background-color: transparent;");
-        backButton.setOnAction(e -> returnToMainMenu());
-        backButtonContainer.getChildren().addAll(backButtonCircle, backButton);
+        backButton.setStyle("-fx-background-color: #ffffff; -fx-border-radius: 50; -fx-background-radius: 50;");
+        backButton.setGraphic(new FontIcon("fas-chevron-left"));
+        backButton.setOnAction(e -> gameLauncher.showMainMenu());
 
-        // Pet info (displaying petName)
-        Text petInfo = new Text("Welcome, " + petName + "!");
-        petInfo.setFont(Font.font("Arial", 24));
-        petInfo.setStyle("-fx-font-weight: bold;");
+        Label welcomeLabel = new Label("Welcome, " + petName + "!");
+        welcomeLabel.setStyle("-fx-font-size: 24; -fx-font-weight: bold;");
 
-        topBar.getChildren().addAll(backButtonContainer, petInfo);
+        topBar.getChildren().addAll(backButton, welcomeLabel);
+        root.getChildren().add(topBar);
 
-        // Gameplay content (example placeholder text)
-        VBox gameplayContainer = new VBox();
-        gameplayContainer.setAlignment(Pos.CENTER);
-        gameplayContainer.setSpacing(20);
-        gameplayContainer.setStyle("-fx-background-color: #f5f5f5;");
-        gameplayContainer.setPadding(new Insets(20));
+        // Main content area
+        HBox contentArea = new HBox();
+        contentArea.setAlignment(Pos.CENTER);
+        contentArea.setPadding(new Insets(20));
+        contentArea.setSpacing(50);
 
-        Text gameplayText = new Text("Enjoy your adventure with " + petName + "!");
-        gameplayText.setFont(Font.font("Arial", 20));
+        // Reuse statsContainer
+        statsContainer.setVisible(true);
+        // statsContainer.setMouseTransparent(true);
 
-        gameplayContainer.getChildren().add(gameplayText);
+        // Right side for pet image
+        VBox rightSide = new VBox();
+        rightSide.setAlignment(Pos.CENTER);
 
-        // Add top bar and gameplay container to the content layout
-        contentLayout.getChildren().addAll(topBar, gameplayContainer);
+        Rectangle petImagePlaceholder = new Rectangle(250, 500);
+        petImagePlaceholder.setFill(Color.LIGHTGRAY);
+        petImagePlaceholder.setStroke(Color.DARKGRAY);
+        petImagePlaceholder.setArcWidth(20);
+        petImagePlaceholder.setArcHeight(20);
+
+        rightSide.getChildren().add(petImagePlaceholder);
+
+        contentArea.getChildren().addAll(rightSide);
+        root.getChildren().add(contentArea);
+    }
+
+    private StackPane createStatsContainer() {
+        VBox statsBox = new VBox(10); // Space between bars
+        statsBox.setAlignment(Pos.BOTTOM_LEFT);
+        statsBox.setPadding(new Insets(10)); // Padding inside the container
+
+        String[] statNames = { "Health", "Hunger", "Happiness", "Energy" };
+        String[] fontAwesomeIcon = { "fas-heart", "fas-utensils", "fas-smile", "fas-bolt" };
+
+        for (int i = 0; i < fontAwesomeIcon.length; i++) {
+            VBox statBar = createStatBar(statNames[i], fontAwesomeIcon[i]);
+            statsBox.getChildren().add(statBar);
+        }
+
+        StackPane statsContainer = new StackPane();
+        statsContainer.getChildren().add(statsBox);
+        StackPane.setAlignment(statsBox, Pos.BOTTOM_LEFT);
+        return statsContainer;
+    }
+
+    // Helper method to create a stat bar without fill
+    private VBox createStatBar(String title, String fontAwesomeIcon) {
+        VBox statContainer = new VBox(5); // Space between title and bar
+        statContainer.setAlignment(Pos.BOTTOM_LEFT);
+
+        // Title for the stat
+        Label statTitle = new Label(title);
+        statTitle.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: black;");
+
+        // Stat bar container
+        HBox statBar = new HBox();
+        statBar.setAlignment(Pos.CENTER_LEFT);
+        statBar.setStyle(
+                "-fx-background-color: #f0f0f0; " + // Background color for the bar
+                        "-fx-border-radius: 20; " + // Rounded corners for the border
+                        "-fx-background-radius: 20; " + // Rounded corners for the background
+                        "-fx-border-color: black; " + // Black border
+                        "-fx-border-width: 1px;" // Thin border (1 pixel)
+        );
+        statBar.setPrefHeight(40);
+        statBar.setPrefWidth(250); // Width of the stat bar
+        statBar.setMaxWidth(250); // Constrain the max width
+
+        // Prevent horizontal stretching
+        HBox.setHgrow(statBar, Priority.NEVER);
+
+        // Font Awesome icon with padding
+        FontIcon statIcon = new FontIcon();
+        statIcon.setIconLiteral(fontAwesomeIcon); // Use the icon literal here
+        statIcon.setIconSize(16); // Set the desired size
+        statIcon.setIconColor(Color.BLACK); // Set the color
+
+        // Wrap the icon in a StackPane to apply padding
+        StackPane iconWrapper = new StackPane(statIcon);
+        iconWrapper.setPadding(new Insets(5, 10, 5, 10)); // Add padding around the icon
+
+        // Add the icon wrapper to the stat bar
+        statBar.getChildren().add(iconWrapper);
+
+        statBar.setOnMouseClicked(event -> {
+            System.out.println("Stat bar clicked: " + title); // Log the click
+            statModal.setTitle(title); // Set modal title based on clicked bar
+            statModal.setVisible(true);
+            statModal.setMouseTransparent(false); // Make modal interactive
+
+        });
+
+        // Add to the container
+        statContainer.getChildren().addAll(statTitle, statBar);
+        return statContainer;
     }
 
     private Button createSettingsButton() {
