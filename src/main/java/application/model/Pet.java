@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.*;
 
+
 public class Pet {
     private String name;
     private String type;
@@ -25,20 +26,55 @@ public class Pet {
         this.currentPetStates = currentPetState; // Should be initiliazed with empty list if the pet is normal and has no negative states
     }
 
-    // Idk what to do with this method, its late asf I'll figure it out later
-    public void interactPet (String action) {
+    /* Allows player to interact with pet
+     * @param action: the actual action that you want to use, options are in allowedInteractions (line 33)
+     * @param item: item you want to gift/feed the pet, allowed options are in allowedFood/Gifts (line 34,35)
+     *              PASS EMPTY STRING IF YOU ARE NOT CALLING FEED OR GIFT
+     * @param inv: needed to pass the inventory that is being used by the game in order to access items in it
+     */
+    public void interactPet (String action, String item, Inventory inv) {
         List<String> allowedInteractions = Arrays.asList("go to bed",  "feed", "give gift", "take to the vet", "exercise");
+        List<String> allowedFood = Arrays.asList("fruit", "meat", "vegetable");
+        List<String> allowedGifts = Arrays.asList("toy", "play place", "ball");
+
         switch (action) {
             case "go to bed":
                 this.caseGoToBed();
+
             case "feed":
-                // Will be implemented when inventory is done
+                try {
+                    if(!allowedFood.contains(item)) {
+                        System.out.println("ERROR: item is not one of the supported food types");
+                        break;
+                    }
+
+                    inv.useItem(item, 1); // Try to consume 1 unit of the item
+                    this.caseFeed(item); // Line 121
+                } catch (Exception e) {
+                    System.out.println("Error feeding pet: " + e.getMessage());
+                }
+                break;
+
             case "give gift":
-                // Will be implemented when inventory is dne
+            try {
+                if(!allowedGifts.contains(item)) {
+                    System.out.println("ERROR: item is not one of the supported gift types");
+                    break;
+                }
+
+                inv.useItem(item, 1); // Try to consume 1 unit of the item
+                this.caseGift(item); // Line 126
+            } catch (Exception e) {
+                System.out.println("Error gifting pet: " + e.getMessage());
+            }
+            break;
+            
             case "take to the vet":
                 this.health = Math.min(this.sleep + 15, 100); // Should go on cooldown after using
+
             case "play":
                 this.happiness = Math.min(this.sleep + 15, 100);
+
             case "exercise":
                 this.health = Math.min(this.health + 5, 100);
                 this.sleep = Math.max(this.sleep - 5, 0);
@@ -67,6 +103,45 @@ public class Pet {
         }
 
         this.removePetState("sleeping");
+    }
+
+    
+    private void caseFeed(String foodItem) {
+                    
+        switch(foodItem) {
+            case "vegetable":
+                this.fullness = Math.min(this.fullness + 5, 100); // Adjust fullness
+                break;
+            case "fruit":
+                this.fullness = Math.min(this.fullness + 10, 100); // Adjust fullness
+                break;
+            case "meat":
+                this.fullness = Math.min(this.fullness + 15, 100); // Adjust fullness
+                break;
+            default:
+                System.out.println("ERROR: something happened during execution of 'feed' switch block");
+        }
+        
+        System.out.println("Fed " + this.name + " with " + foodItem);
+    }
+
+
+    private void caseGift(String giftItem) {
+        switch(giftItem) {
+            case "toy":
+                this.fullness = Math.min(this.fullness + 5, 100); // Adjust fullness
+                break;
+            case "ball":
+                this.fullness = Math.min(this.fullness + 10, 100); // Adjust fullness
+                break;
+            case "play place":
+                this.fullness = Math.min(this.fullness + 15, 100); // Adjust fullness
+                break;
+            default:
+                System.out.println("ERROR: something happened during execution of 'gift' switch block");
+        }
+
+        System.out.println("Gifted " + this.name + " with " + giftItem);
     }
 
 
@@ -294,7 +369,7 @@ public class Pet {
 
     // Main method with a couple tests I ran, feel free to add your own and check if everything works ok
     // UNCOMMENT TO RUN TESTS
-    /* 
+    
     public static void main(String[] args) {
 
         List<String> states = new ArrayList<>();
@@ -344,14 +419,23 @@ public class Pet {
         System.out.println("Happiness: " + myPet2.getHappiness());
         System.out.println("Current States: " + myPet2.getGetAllPetStates());
 
-        myPet2.interactPet("exercise");
+        Inventory myInventory = new Inventory();
+        myPet2.interactPet("exercise", "", myInventory);
         System.out.println("Sleep: " + myPet2.getSleep());
         myPet2.adjustStats();
         System.out.println("Current States: " + myPet2.getGetAllPetStates());
-        myPet2.interactPet("invalid input");
-        myPet2.interactPet("go to bed");
+        myPet2.interactPet("invalid input", "", myInventory);
+        //myPet2.interactPet("go to bed", "", myInventory);
+        try {
+            myInventory.addItem("vegetable", 0);
+        } catch (Exception e) {
+            System.out.println("Item not supported!");
+        }
+        
+        System.out.println(myInventory.getFoodItems());
+        myPet2.interactPet("feed", "vegetable", myInventory);
+
         
     }
-    */
 }
    
