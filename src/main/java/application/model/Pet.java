@@ -7,16 +7,14 @@ import java.util.Arrays;
 
 public class Pet {
     private String name;
-    private String type;
     private List<String> currentPetStates; // Changed from String to List because its possible for the pet to be in multiple states at once
     private int health;
     private int sleep;
     private int fullness;
     private int happiness;
 
-    public Pet(String pet_name, String pet_type, int pet_health, int pet_sleep, int pet_fullness, int pet_happiness, List<String> currentPetState) {
+    public Pet(String pet_name, int pet_health, int pet_sleep, int pet_fullness, int pet_happiness, List<String> currentPetState) {
         this.name = pet_name;
-        this.name = pet_type;
         this.health = pet_health;
         this.sleep = pet_sleep;
         this.fullness = pet_fullness;
@@ -112,8 +110,7 @@ public class Pet {
     }
 
     
-    private void caseFeed(String foodItem) {
-                    
+    private void caseFeed(String foodItem) {    
         switch(foodItem) {
             case "vegetable":
                 this.fullness = Math.min(this.fullness + 5, 100); // Adjust fullness
@@ -165,10 +162,10 @@ public class Pet {
         this.fullness = Math.max(this.fullness, 0);
         this.happiness = Math.max(this.happiness, 0);
 
-        checkAndAddState();
+        this.checkAndAddState();
     }
 
-    private void checkAndAddState() {
+    protected void checkAndAddState() {
         // Clears existing states that depend on stats
         this.clearPetStates();
     
@@ -314,17 +311,6 @@ public class Pet {
 
     public void setName(String name) {
         this.name = name;
-    }
-    // ------
-
-
-    // TYPE
-    public String getType() {
-        return this.type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
     // ------
 
