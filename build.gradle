@@ -15,6 +15,9 @@ dependencies {
     implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
     implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack:12.3.1'
 
+    implementation 'org.openjfx:javafx-controls:20'
+    implementation 'org.openjfx:javafx-media:20'
+
     // Testing framework
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 }
@@ -28,7 +31,7 @@ java {
 javafx {
     // Specify the JavaFX version and modules to use
     version = '23'
-    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics' ]
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.media' ]
 }
 
 application {
