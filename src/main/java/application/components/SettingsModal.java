@@ -39,8 +39,10 @@ public class SettingsModal extends StackPane {
                         "-fx-background-radius: 15; " + // Rounded corners
                         "-fx-padding: 10 20;");
         doneButton.setOnAction(e -> {
-            if (onDoneAction != null)
-                onDoneAction.run(); // Execute onDoneAction
+            this.setVisible(false); // Always hide the modal when "Done" is clicked
+            if (onDoneAction != null) {
+                onDoneAction.run(); // Execute additional action if set
+            }
         });
 
         modalContent.getChildren().addAll(modalTitle, doneButton);
