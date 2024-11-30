@@ -24,6 +24,7 @@ public class GameState {
     //Setter method
     public void setSaveSlot(int saveSlot) {
         this.saveSlot = saveSlot;
+        
     }
 
 }
