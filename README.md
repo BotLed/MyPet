@@ -1,4 +1,6 @@
-# My Pet - Virtual Pet Care Application
+<div align="center">
+![Title Image](src/main/resources/MyPetTitle.png)
+</div>
 
 ## Description
 **My Pet** is a virtual pet care application developed in Java that allows users to take care of a virtual pet. Players can feed, groom, play with, and manage the health and happiness of their pet. The application provides educational value by teaching responsibility and routine management through interactive gameplay. Features include multiple pet types, a save/load system, and parental controls.
