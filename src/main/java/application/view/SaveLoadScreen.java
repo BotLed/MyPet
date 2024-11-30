@@ -25,7 +25,6 @@ public class SaveLoadScreen {
 
     public SaveLoadScreen(GameLauncher gameLauncher) {
         this.gameLauncher = gameLauncher;
-
     }
 
     public Scene getScene() {
@@ -116,11 +115,7 @@ public class SaveLoadScreen {
             petImageView.setFitWidth(250);
             petImageView.setFitHeight(250);
             petImageView.setPreserveRatio(true);
-            petImageView.setOnMouseClicked(e -> {
-                System.out.println("DEBUG: Pet image clicked for Slot " + slotNumber);
-                openLoadGameConfirmation(petName);
-            });
-
+            petImageView.setOnMouseClicked(e -> gameLauncher.loadGame(slotNumber));
             slotBox.getChildren().add(petImageView);
         }
 
@@ -129,6 +124,8 @@ public class SaveLoadScreen {
     }
 
     private void openNewGameConfirmation(int slotNumber) {
+        gameLauncher.showGameplay(true); // start a new game
+        gameLauncher.saveGame(); // Save to the selected slot
         Stage modalStage = new Stage();
         modalStage.initOwner(stage);
         modalStage.initModality(Modality.APPLICATION_MODAL);

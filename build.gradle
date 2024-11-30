@@ -17,6 +17,7 @@ dependencies {
 
     implementation 'org.openjfx:javafx-controls:20'
     implementation 'org.openjfx:javafx-media:20'
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     implementation 'com.google.code.gson:gson:2.10.1'
 
@@ -51,5 +52,6 @@ tasks.withType(JavaExec) {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
 
 

@@ -1,7 +1,5 @@
 package application;
 
-<<<<<<< Updated upstream
-=======
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,7 +12,6 @@ import application.model.Player;
 import application.controllers.FeedbackController;
 import application.model.Feedback;
 
->>>>>>> Stashed changes
 import application.view.GameplayScreen;
 import application.view.MainMenuScreen;
 import application.view.ParentalControlScreen;
@@ -65,28 +62,10 @@ public class GameLauncher extends Application {
     }
 
     public void showGameplay(boolean isNewGame, String petName) {
-<<<<<<< Updated upstream
-=======
-
-        if (isNewGame) {
-            // Create default player and pet for the new game
-            Pet pet = new Pet("Dog", 100, 100, 100, 100, new ArrayList<>());
-            Player player = new Player("Player Name", pet);
-            currentGameState = new GameState(player, findEmptySaveSlot());
-        }
-
->>>>>>> Stashed changes
         GameplayScreen gameplayScreen = new GameplayScreen(this, isNewGame, petName); // Pass petName
         primaryStage.setScene(gameplayScreen.getScene());
     }
 
-<<<<<<< Updated upstream
-=======
-    public int findEmptySaveSlot() {
-        return 1;// Need to implement a find find empty slot but for now 1
-    }
-
->>>>>>> Stashed changes
     public void showSaveLoadScreen() {
         SaveLoadScreen saveLoadScreen = new SaveLoadScreen(this);
         primaryStage.setScene(saveLoadScreen.getScene());
@@ -102,8 +81,6 @@ public class GameLauncher extends Application {
         primaryStage.setScene(tutorialScreen.getScene());
     }
 
-<<<<<<< Updated upstream
-=======
     public void loadGame(int slotNumber) {
         try {
             Gson gson = new Gson();
@@ -136,7 +113,6 @@ public class GameLauncher extends Application {
         return currentGameState;
     }
 
->>>>>>> Stashed changes
     public static void main(String[] args) {
         launch(args);
     }
