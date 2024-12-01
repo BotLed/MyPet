@@ -95,7 +95,7 @@ public class GameplayScreen {
         // Root container
         root = new VBox();
         root.setPadding(new Insets(0));
-        root.setStyle("-fx-background-color: #f5f5f5;");
+        root.setStyle("-fx-background-color: #fff4e0;");
         root.setAlignment(Pos.TOP_CENTER);
 
         // Fetch values from the controller
@@ -286,7 +286,7 @@ public class GameplayScreen {
         card.setSpacing(10);
         card.setPadding(new Insets(20));
         card.setStyle(
-                "-fx-background-color: #ffffff; " +
+                "-fx-background-color: #8fcccb; " +
                         "-fx-border-radius: 15; " +
                         "-fx-background-radius: 15; " +
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 5);");

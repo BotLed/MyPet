@@ -34,7 +34,7 @@ public class SaveLoadScreen {
 
     public Scene getScene() {
         BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #f5f5f5;");
+        root.setStyle("-fx-background-color: #fff4e0;");
 
         HBox slotContainer = createSlotContainer();
         root.setCenter(slotContainer);
@@ -81,7 +81,7 @@ public class SaveLoadScreen {
         HBox slotContainer = new HBox(40);
         slotContainer.setAlignment(Pos.CENTER);
         slotContainer.setPadding(new Insets(50));
-        slotContainer.setStyle("-fx-background-color: #ffffff; -fx-border-radius: 10; -fx-background-radius: 10;");
+        slotContainer.setStyle("-fx-background-color: #fff4e0; -fx-border-radius: 10; -fx-background-radius: 10;");
 
         // Dynamically create save slots for 3 JSON files
         for (int i = 1; i <= 3; i++) {
@@ -183,7 +183,7 @@ public class SaveLoadScreen {
 
         Text modalMessage = new Text("Click start to begin playing a new game");
         modalMessage.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-        modalMessage.setFill(Color.DARKGRAY);
+        modalMessage.setFill(Color.BLACK);
 
         Button cancelButton = new Button("Cancel");
         cancelButton.setOnAction(e -> modalStage.close());
@@ -216,47 +216,5 @@ public class SaveLoadScreen {
         modalStage.setScene(modalScene);
         modalStage.showAndWait();
     }
-
-    /*
-     * private void openLoadGameConfirmation(int saveSlot) {
-     * Stage modalStage = new Stage();
-     * modalStage.initOwner(stage);
-     * modalStage.initModality(Modality.APPLICATION_MODAL);
-     * modalStage.setTitle("Continue Game");
-     * 
-     * VBox modalLayout = new VBox(20);
-     * modalLayout.setPadding(new Insets(20));
-     * modalLayout.setAlignment(Pos.CENTER);
-     * modalLayout.setStyle("-fx-background-color: #ffffff;");
-     * 
-     * Text modalTitle = new Text("Continue Game");
-     * modalTitle.setFont(Font.font("Arial", FontWeight.BOLD, 24));
-     * modalTitle.setFill(Color.BLACK);
-     * 
-     * Text modalMessage = new Text("Click resume to continue with slot " + saveSlot
-     * + "!");
-     * modalMessage.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-     * modalMessage.setFill(Color.DARKGRAY);
-     * 
-     * Button cancelButton = new Button("Cancel");
-     * cancelButton.setOnAction(e -> modalStage.close());
-     * 
-     * Button resumeButton = new Button("Resume");
-     * resumeButton.setOnAction(e -> {
-     * System.out.println("Resuming game from slot " + saveSlot);
-     * modalStage.close();
-     * gameLauncher.showGameplay(false, null, saveSlot);
-     * });
-     * 
-     * HBox buttonBox = new HBox(20, cancelButton, resumeButton);
-     * buttonBox.setAlignment(Pos.CENTER);
-     * 
-     * modalLayout.getChildren().addAll(modalTitle, modalMessage, buttonBox);
-     * 
-     * Scene modalScene = new Scene(modalLayout, 400, 200);
-     * modalStage.setScene(modalScene);
-     * modalStage.showAndWait();
-     * }
-     */
 
 }

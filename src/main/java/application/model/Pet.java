@@ -82,11 +82,11 @@ public class Pet {
                 break;
 
             case "take to the vet":
-                this.health = Math.min(this.sleep + 15, 100); // Should go on cooldown after using
+                this.health = Math.min(this.health + 15, 100); // Should go on cooldown after using
                 break;
 
             case "play":
-                this.happiness = Math.min(this.sleep + 15, 100);
+                this.happiness = Math.min(this.happiness + 15, 100);
                 break;
 
             case "exercise":
@@ -108,7 +108,7 @@ public class Pet {
                 Thread.sleep(2000);
 
                 // Increase sleep by 5
-                this.sleep = Math.min(this.sleep + 5, 100); // Ensures sleep doesn't exceed 100
+                this.sleep = Math.min(this.sleep + 25, 100); // Ensures sleep doesn't exceed 100
 
                 // Print the current sleep value for debugging
                 System.out.println("Sleep is now: " + this.sleep);
@@ -142,13 +142,13 @@ public class Pet {
     private void caseGift(String giftItem) {
         switch (giftItem) {
             case "toy":
-                this.fullness = Math.min(this.happiness + 5, 100); // Adjust fullness
+                this.happiness = Math.min(this.happiness + 5, 100); // Adjust happiness
                 break;
             case "ball":
-                this.fullness = Math.min(this.happiness + 10, 100); // Adjust fullness
+                this.happiness = Math.min(this.happiness + 10, 100); // Adjust happiness
                 break;
             case "play place":
-                this.fullness = Math.min(this.happiness + 15, 100); // Adjust fullness
+                this.happiness = Math.min(this.happiness + 15, 100); // Adjust happiness
                 break;
             default:
                 System.out.println("ERROR: something happened during execution of 'gift' switch block");
@@ -176,24 +176,43 @@ public class Pet {
         this.checkAndAddState();
     }
 
-    protected void checkAndAddState() {
+    public void checkAndAddState() {
         // Clears existing states that depend on stats
         this.clearPetStates();
 
         // Checks each stat and update states
         if (this.health <= 0) {
             this.addPetState("dead");
+            this.sleep = 0;
+            this.fullness = 0;
+            this.happiness = 0;
+
+            System.out.println("Pet has died. All stats set to 0.");
+            return;
         } else {
             if (this.sleep <= 0) {
                 this.addPetState("sleeping");
+                applyHealthPenalty();
+                // return;
             }
             if (this.fullness <= 0) {
                 this.addPetState("hungry");
+                applyHappinessPenalty();
+                applyHealthPenalty();
             }
             if (this.happiness <= 0) {
                 this.addPetState("angry");
             }
         }
+    }
+
+    // Apply penalties
+    private void applyHealthPenalty() {
+        this.health = Math.max(this.health - 5, 0);
+    }
+
+    private void applyHappinessPenalty() {
+        this.happiness = Math.max(this.happiness - 5, 0);
     }
 
     /*
