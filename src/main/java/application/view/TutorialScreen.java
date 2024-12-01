@@ -25,11 +25,11 @@ public class TutorialScreen {
 
     // Array of slide images
     private Image[] tutorialSlides = {
-            new Image("pic1.jpg"),
-            new Image("pic2.jpg"),
-            new Image("pic3.jpg"),
-            new Image("pic4.jpg"),
-            new Image("pic5.jpg")
+            new Image("parental.jpg"),
+            new Image("parental.jpg"),
+            new Image("loading.jpg"),
+            new Image("inventory.jpg"),
+            new Image("gameplay.jpg")
     };
 
     public TutorialScreen(GameLauncher gameLauncher) {
