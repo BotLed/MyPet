@@ -1,1 +1,20 @@
-{"player":{"name":"Player","score":49,"currentPet":{"name":"test","currentPetStates":["sleeping","hungry","angry"],"health":62,"sleep":0,"fullness":0,"happiness":0,"petType":2},"inventory":{"foodItems":{"fruit":0,"meat":0,"vegetable":13},"giftItems":{"ball":0,"play place":0,"toy":5}}},"saveSlot":1}
+{
+  "player": {
+    "name": "Player",
+    "score": 49,
+    "currentPet": {
+      "name": "test",
+      "currentPetStates": [],
+      "health": 0,
+      "sleep": 98,
+      "fullness": 96,
+      "happiness": 98,
+      "petType": 2
+    },
+    "inventory": {
+      "foodItems": { "fruit": 0, "meat": 0, "vegetable": 13 },
+      "giftItems": { "ball": 0, "play place": 0, "toy": 5 }
+    }
+  },
+  "saveSlot": 1
+}

@@ -1,7 +1,7 @@
 package application.view;
 
 import application.GameLauncher;
-import application.controller.ParentalControlController;
+import application.controllers.ParentalControlController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -21,11 +21,19 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import org.json.JSONObject;
+import org.json.JSONException;
 
-import java.util.ArrayList; 
-import java.util.HashSet;   
-import java.util.List;      
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class ParentalControlScreen {
 
@@ -34,7 +42,7 @@ public class ParentalControlScreen {
     private GameLauncher gameLauncher;
     private ParentalControlController controller;
 
-    //Stores selected hrs
+    // Stores selected hrs
     private Set<Integer> selectedHours = new HashSet<>();
 
     public ParentalControlScreen(GameLauncher gameLauncher, Stage stage, ParentalControlController controller) {
@@ -240,7 +248,7 @@ public class ParentalControlScreen {
         headerContainer.setAlignment(Pos.CENTER); // Center-align the header container horizontally
 
         // Header section (center-aligned)
-        VBox titleContainer = new VBox(2); // Reduced spacing
+        VBox titleContainer = new VBox(2);
         titleContainer.setAlignment(Pos.CENTER); // Center-align title and subtitle
 
         Label header = new Label("Time Limit");
@@ -254,56 +262,53 @@ public class ParentalControlScreen {
         boolean isEnabled = controller.isEnabled();
         ToggleButton timeLimitToggle = new ToggleButton();
         timeLimitToggle.setPrefSize(100, 40); // Adjusted size
-        
-        //sets toggle button based on whether enabled or not
-        if(isEnabled){
+
+        // sets toggle button based on whether enabled or not
+        if (isEnabled) {
             timeLimitToggle.setText("ON");
-        }else{
+        } else {
             timeLimitToggle.setText("OFF");
         }
-        
-        //sets the toggle button style based on isEnabled
-        if(isEnabled){
-            timeLimitToggle.setStyle(
-                "-fx-font-size: 14; -fx-background-color: lightgreen; -fx-text-fill: black; " +
-                "-fx-border-radius: 20; -fx-background-radius: 20;"
-            );
 
-        }else{
+        // sets the toggle button style based on isEnabled
+        if (isEnabled) {
             timeLimitToggle.setStyle(
-                "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; " +
-                "-fx-border-radius: 20; -fx-background-radius: 20;"
-            );
+                    "-fx-font-size: 14; -fx-background-color: lightgreen; -fx-text-fill: black; " +
+                            "-fx-border-radius: 20; -fx-background-radius: 20;");
+
+        } else {
+            timeLimitToggle.setStyle(
+                    "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; " +
+                            "-fx-border-radius: 20; -fx-background-radius: 20;");
         }
 
         // Detailed settings container (hidden initially)
         VBox detailedSettings = new VBox(8); // Reduced spacing
-        detailedSettings.setVisible(isEnabled); //visibility dependant upon whether parental control enabled
+        detailedSettings.setVisible(isEnabled); // visibility dependant upon whether parental control enabled
         detailedSettings.setPadding(new Insets(5, 10, 10, 10)); // Reduced padding
         detailedSettings.setAlignment(Pos.TOP_CENTER);
 
         // Toggle button behavior
         timeLimitToggle.setOnAction(e -> {
             boolean isSelected = timeLimitToggle.getText().equals("OFF");
-            if(isSelected){
-                //Set to ON
+            if (isSelected) {
+                // Set to ON
                 timeLimitToggle.setText("ON");
                 timeLimitToggle.setStyle(
                         "-fx-font-size: 14; -fx-background-color: lightgreen; -fx-text-fill: black; " +
                                 "-fx-border-radius: 20; -fx-background-radius: 20;");
-                detailedSettings.setVisible(true); //Show detailed settings
-            }else{
-                //Set to OFF
+                detailedSettings.setVisible(true); // Show detailed settings
+            } else {
+                // Set to OFF
                 timeLimitToggle.setText("OFF");
                 timeLimitToggle.setStyle(
                         "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; " +
                                 "-fx-border-radius: 20; -fx-background-radius: 20;");
-                detailedSettings.setVisible(false); //Hide detailed settings
+                detailedSettings.setVisible(false); // Hide detailed settings
             }
-            //Updates the controller's enabled status
+            // Updates the controller's enabled status
             controller.setEnabled(isSelected);
         });
-    
 
         // Add title and toggle button to the header container
         headerContainer.getChildren().addAll(titleContainer, timeLimitToggle);
@@ -321,7 +326,6 @@ public class ParentalControlScreen {
 
         dayTimeHeaderContainer.getChildren().addAll(dayTimeHeader, instructions);
 
-
         // Hour buttons (24-hour clock)
         VBox hourSelectionContainer = new VBox(8); // Reduced spacing
         hourSelectionContainer.setAlignment(Pos.CENTER);
@@ -336,7 +340,7 @@ public class ParentalControlScreen {
 
         int columns = 8; // Number of columns in the grid to make it wider
 
-        //getting selected hrs from the controllers allowed hrs
+        // getting selected hrs from the controllers allowed hrs
         selectedHours.clear();
         selectedHours.addAll(controller.getAllowedHours());
 
@@ -347,18 +351,16 @@ public class ParentalControlScreen {
             String buttonStyle;
             if (selectedHours.contains(hour)) {
                 buttonStyle = "-fx-font-size: 14; -fx-background-color: lightgreen; -fx-text-fill: black; " +
-                              "-fx-border-radius: 5; -fx-background-radius: 5;";
+                        "-fx-border-radius: 5; -fx-background-radius: 5;";
             } else {
                 buttonStyle = "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; " +
-                              "-fx-border-radius: 5; -fx-background-radius: 5;";
+                        "-fx-border-radius: 5; -fx-background-radius: 5;";
             }
             hourButton.setStyle(buttonStyle);
 
-            final int currentHour = hour; //for use in lambda
-            
+            final int currentHour = hour; // for use in lambda
 
-
-            //adds or removes hr when clicked (from selected hr not json)
+            // adds or removes hr when clicked (from selected hr not json)
             hourButton.setOnAction(e -> {
                 if (selectedHours.contains(currentHour)) {
                     selectedHours.remove(currentHour);
@@ -373,7 +375,7 @@ public class ParentalControlScreen {
                 }
             });
 
-            //Add to grid 
+            // Add to grid
             hourGrid.add(hourButton, hour % columns, hour / columns);
         }
 
@@ -382,22 +384,22 @@ public class ParentalControlScreen {
         // Add components to the detailed settings
         detailedSettings.getChildren().addAll(dayTimeHeaderContainer, hourSelectionContainer);
 
-        //save button to save the settings
+        // save button to save the settings
         Button saveButton = new Button("Save");
         saveButton.setStyle(
-            "-fx-font-size: 18; -fx-background-color: #d3d3d3; -fx-text-fill: black; " +
-            "-fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 10 30;");
+                "-fx-font-size: 18; -fx-background-color: #d3d3d3; -fx-text-fill: black; " +
+                        "-fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 10 30;");
         saveButton.setOnAction(e -> {
-            //save selectedHours to controller
+            // save selectedHours to controller
             controller.setAllowedHours(new ArrayList<>(selectedHours));
-            
-            //show confirmation msg
+
+            // show confirmation msg
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Settings saved successfully.", ButtonType.OK);
             alert.showAndWait();
         });
 
         timeLimitView.getChildren().addAll(headerContainer, detailedSettings, saveButton);
-        
+
         return timeLimitView;
     }
 
@@ -408,22 +410,19 @@ public class ParentalControlScreen {
         statsView.setPadding(new Insets(30)); // Increased padding for the larger window
         statsView.setAlignment(Pos.TOP_CENTER);
 
-
         int totalTimePlayed = controller.getTotalTimePlayed();
         int numberOfLaunches = controller.getNumberOfLaunches();
 
-        //calculate average session time
+        // calculate average session time
         int averageSessionTime;
-        if(numberOfLaunches > 0){
-            averageSessionTime = totalTimePlayed/numberOfLaunches;
-        }else{
+        if (numberOfLaunches > 0) {
+            averageSessionTime = totalTimePlayed / numberOfLaunches;
+        } else {
             averageSessionTime = 0;
         }
 
         String totalTimePlayedStr = String.format("%d Minutes", totalTimePlayed);
         String averageSessionTimeStr = String.format("%d Minutes", averageSessionTime);
-
-
 
         // Total Play Time Section
         VBox totalPlayTimeContainer = new VBox(15); // Adjusted spacing within the section
@@ -449,7 +448,7 @@ public class ParentalControlScreen {
 
         avgPlayTimeContainer.getChildren().addAll(avgPlayTimeHeader, avgPlayTimeSubheading);
 
-        //Reset Stats Button
+        // Reset Stats Button
         Button resetStatsButton = new Button("Reset");
         resetStatsButton.setStyle(
                 "-fx-font-size: 22; -fx-background-color: red; -fx-text-fill: white; " +
@@ -458,7 +457,7 @@ public class ParentalControlScreen {
         // Reset action
         resetStatsButton.setOnAction(e -> {
 
-            //resetting values in json to 1 for time played and 0 for num of launches
+            // resetting values in json to 1 for time played and 0 for num of launches
             controller.resetStats();
 
             totalPlayTimeHeader.setText("0 Hours");
@@ -471,10 +470,10 @@ public class ParentalControlScreen {
     }
 
     // Pet Revival Section
-    private VBox createPetRevivalView() {
+    public VBox createPetRevivalView() {
         // Outer container
-        VBox petRevivalView = new VBox(30); // Same spacing as Stats View
-        petRevivalView.setPadding(new Insets(30)); // Same padding as Stats View
+        VBox petRevivalView = new VBox(30);
+        petRevivalView.setPadding(new Insets(30));
         petRevivalView.setAlignment(Pos.TOP_CENTER);
 
         // Pet Status Label
@@ -482,66 +481,106 @@ public class ParentalControlScreen {
         petStatusLabel.setStyle("-fx-font-size: 18; -fx-text-fill: black;");
 
         // Pet List Container (dynamic content based on dead pets)
-        VBox petList = new VBox(20); // Spacing between pets
+        VBox petList = new VBox(20);
         petList.setAlignment(Pos.CENTER);
 
-        // Check for dead pets (example data)
-        boolean hasDeadPets = true; // Set to false to test "All pets are healthy" message
-        if (hasDeadPets) {
-            petStatusLabel.setText("Revive your pets"); // Update status message
+        // Array of save files
+        String[] saveFiles = { "save1.JSON", "save2.JSON", "save3.JSON" };
 
-            // Example dead pets data
-            String[][] deadPets = {
-                    { "Fluffy", "BoJack.png" },
-                    { "Max", "BoJack.png" }
-            };
+        // Loop through each save file and create a corresponding row
+        for (String saveFile : saveFiles) {
+            HBox saveContainer = new HBox(15);
+            saveContainer.setPadding(new Insets(10));
+            saveContainer.setAlignment(Pos.CENTER_LEFT);
+            saveContainer.setStyle(
+                    "-fx-background-color: #f0f0f0; -fx-border-radius: 30; -fx-background-radius: 30;");
 
-            for (String[] petData : deadPets) {
-                String petName = petData[0];
-                String petImage = petData[1];
+            // Save Slot Label
+            Label saveSlotLabel = new Label(saveFile.replace(".JSON", "").toUpperCase());
+            saveSlotLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: black;");
 
-                // Horizontal Oval Container
-                HBox petContainer = new HBox(15); // Spacing inside the oval
-                petContainer.setPadding(new Insets(10));
-                petContainer.setAlignment(Pos.CENTER_LEFT);
-                petContainer.setStyle(
-                        "-fx-background-color: #f0f0f0; -fx-border-radius: 30; -fx-background-radius: 30;");
+            // Health Status Label
+            Label healthStatusLabel = new Label();
+            healthStatusLabel.setStyle("-fx-font-size: 14; -fx-text-fill: black;");
 
-                // Circular Pet Image
-                ImageView petImageView = new ImageView(new Image(petImage));
-                petImageView.setFitWidth(50);
-                petImageView.setFitHeight(50);
-                petImageView.setStyle("-fx-border-radius: 25; -fx-background-radius: 25;");
+            // Pet Name Label
+            Label petNameLabel = new Label();
+            petNameLabel.setStyle("-fx-font-size: 14; -fx-text-fill: black;");
 
-                // Pet Name Label
-                Label petNameLabel = new Label(petName);
-                petNameLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: black;");
+            // Heart Button for revival
+            Label reviveHeart = new Label("\u2764");
+            reviveHeart.setFont(Font.font("Arial", 28));
+            reviveHeart.setStyle("-fx-text-fill: red; -fx-cursor: hand;");
+            reviveHeart.setVisible(false);
 
-                // Revive Button (Red Heart)
-                Label reviveHeart = new Label("\u2764"); // Unicode for red heart
-                reviveHeart.setFont(Font.font("Arial", 28)); // Font size for larger heart
-                reviveHeart.setStyle("-fx-text-fill: red; -fx-cursor: hand;");
-                reviveHeart.setOnMouseClicked(e -> {
-                    petList.getChildren().remove(petContainer); // Remove pet from list
-                    if (petList.getChildren().isEmpty()) {
-                        petStatusLabel.setText("All pets are healthy");
+            // Check the health status from the JSON file
+            try {
+                File file = new File("saves/" + saveFile);
+                System.out.println("Checking file: " + file.getAbsolutePath());
+                if (file.exists()) {
+                    String json = new String(Files.readAllBytes(Paths.get(file.getPath())));
+                    JSONObject jsonObject = new JSONObject(json);
+                    JSONObject player = jsonObject.getJSONObject("player");
+                    JSONObject currentPet = player.getJSONObject("currentPet");
+
+                    int health = currentPet.getInt("health");
+                    String petName = currentPet.getString("name");
+
+                    petNameLabel.setText("Pet: " + petName);
+
+                    if (health > 0) {
+                        healthStatusLabel.setText("Your pet is healthy");
+                    } else {
+                        healthStatusLabel.setText("Dead pet");
+                        reviveHeart.setVisible(true); // Show heart button for dead pets
                     }
-                });
 
-                // Add components to the pet container
-                petContainer.getChildren().addAll(petImageView, petNameLabel, reviveHeart);
-
-                // Add the pet container to the list
-                petList.getChildren().add(petContainer);
+                    // Revive action
+                    reviveHeart.setOnMouseClicked(e -> {
+                        revivePet(file);
+                        healthStatusLabel.setText("Your pet is healthy");
+                        reviveHeart.setVisible(false); // Hide the revive button
+                    });
+                } else {
+                    healthStatusLabel.setText("Empty Slot");
+                    petNameLabel.setText("Pet: unnamed");
+                }
+            } catch (Exception e) {
+                healthStatusLabel.setText("Empty Slot");
+                petNameLabel.setText("Pet: unnamed");
+                System.err.println("Error reading save file " + saveFile + ": " + e.getMessage());
             }
+
+            // Add components to the save container
+            saveContainer.getChildren().addAll(saveSlotLabel, petNameLabel, healthStatusLabel, reviveHeart);
+
+            // Add the save container to the list
+            petList.getChildren().add(saveContainer);
         }
 
-        // Add components to the main view
+        // Add components to the pet revival view
         petRevivalView.getChildren().addAll(petStatusLabel, petList);
-
-        // Set locked window size (same as Stats View)
-        petRevivalView.setPrefSize(600, 400); // Adjust dimensions to match your Stats View
         return petRevivalView;
+    }
+
+    private void revivePet(File file) {
+        try {
+            String json = new String(Files.readAllBytes(file.toPath()));
+            JSONObject jsonObject = new JSONObject(json);
+            JSONObject player = jsonObject.getJSONObject("player");
+            JSONObject currentPet = player.getJSONObject("currentPet");
+
+            if (currentPet != null) {
+                currentPet.put("health", 100);
+                currentPet.put("sleep", 100);
+                currentPet.put("fullness", 100);
+                currentPet.put("happiness", 100);
+                Files.write(file.toPath(), jsonObject.toString(4).getBytes());
+                System.out.println("Revived pet in " + file.getName());
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to revive pet in " + file.getName() + ": " + e.getMessage());
+        }
     }
 
     // Getter for Scene
