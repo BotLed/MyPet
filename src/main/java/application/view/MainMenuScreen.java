@@ -4,6 +4,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import application.GameLauncher;
 import application.components.SettingsModal;
+import application.components.WarningModal;
 import application.controllers.FeedbackController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -24,6 +25,7 @@ public class MainMenuScreen {
 
     private GameLauncher gameLauncher; // Reference to GameLauncher
     private SettingsModal settingsModal;
+    private WarningModal warningModal;
     private FeedbackController feedbackController;
 
     public MainMenuScreen(GameLauncher gameLauncher, FeedbackController feedbackController) {
@@ -40,6 +42,13 @@ public class MainMenuScreen {
         settingsModal.setVisible(false);
 
         settingsModal.setOnDoneAction(() -> settingsModal.hide());
+
+
+        // Initialize warningModal
+        warningModal = new WarningModal();
+        warningModal.setVisible(false);
+
+        warningModal.setOnDoneAction(() -> warningModal.hide());
 
         // Title at the top
         Text title = new Text("My Pet");
@@ -69,6 +78,10 @@ public class MainMenuScreen {
 
         // Add the settings modal to the layeredRoot
         layeredRoot.getChildren().add(settingsModal);
+
+        layeredRoot.getChildren().add(warningModal);
+
+        
 
         StackPane.setAlignment(settingsButton, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(settingsButton, new Insets(20));
@@ -133,6 +146,7 @@ public class MainMenuScreen {
                         System.out.println(gameLauncher.getWithinTime());
                         break;
                     }else{
+                        warningModal.show();
                         System.out.println("You are not allowed to play the game based on Parental Controls");
                         break;
                     }
@@ -143,6 +157,7 @@ public class MainMenuScreen {
                         System.out.println(gameLauncher.getWithinTime());
                         break;
                     }else{
+                        warningModal.show();
                         System.out.println("You are not allowed to play the game based on Parental Controls");
                         break;
                     }
