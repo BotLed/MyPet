@@ -116,6 +116,7 @@ public class GameplayController {
                             ", Sleep=" + pet.getSleep());
 
                     pet.adjustStats();
+                    pet.checkAndAddState();
 
                     System.out.println("After decay: Hunger=" + pet.getFullness() +
                             ", Happiness=" + pet.getHappiness() +
@@ -123,7 +124,7 @@ public class GameplayController {
                     notifyStatsUpdated();
                 }
             }
-        }, 0, 10000); // Update stats every 10 seconds
+        }, 0, 5000); // Update stats every 10 seconds
 
         System.out.println("Stat decay started.");
     }

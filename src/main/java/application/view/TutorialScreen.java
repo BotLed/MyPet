@@ -25,7 +25,7 @@ public class TutorialScreen {
 
     // Array of slide images
     private Image[] tutorialSlides = {
-            new Image("parental.jpg"),
+            new Image("menu.jpg"),
             new Image("parental.jpg"),
             new Image("loading.jpg"),
             new Image("inventory.jpg"),
@@ -38,7 +38,7 @@ public class TutorialScreen {
 
     public Scene getScene() {
         BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #f5f5f5;");
+        root.setStyle("-fx-background-color: #8fcccb;");
 
         // Main tutorial image in a smaller window
         tutorialImageView = new ImageView(tutorialSlides[0]);
@@ -102,7 +102,7 @@ public class TutorialScreen {
         HBox slideSelector = new HBox(10);
         slideSelector.setAlignment(Pos.CENTER);
         slideSelector.setPadding(new Insets(0));
-        slideSelector.setStyle("-fx-background-color: #ffffff;");
+        slideSelector.setStyle("-fx-background-color: #8fcccb;");
 
         ToggleGroup toggleGroup = new ToggleGroup();
 
@@ -111,7 +111,7 @@ public class TutorialScreen {
             ToggleButton slideButton = new ToggleButton(String.valueOf(i + 1));
             slideButton.setFont(Font.font("Arial", FontWeight.BOLD, 20));
             slideButton.setStyle(
-                    "-fx-background-color: #dcdcdc; " +
+                    "-fx-background-color: white; " +
                             "-fx-border-color: #aaaaaa; " +
                             "-fx-border-radius: 10; " +
                             "-fx-text-fill: black;");

@@ -35,14 +35,13 @@ public class MainMenuScreen {
 
     public Scene getScene() {
         BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #f5f5f5;");
+        root.setStyle("-fx-background-color: #fff4e0;");
 
         // Initialize settingsModal
         settingsModal = new SettingsModal(feedbackController);
         settingsModal.setVisible(false);
 
         settingsModal.setOnDoneAction(() -> settingsModal.hide());
-
 
         // Initialize warningModal
         warningModal = new WarningModal();
@@ -81,8 +80,6 @@ public class MainMenuScreen {
 
         layeredRoot.getChildren().add(warningModal);
 
-        
-
         StackPane.setAlignment(settingsButton, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(settingsButton, new Insets(20));
 
@@ -97,7 +94,7 @@ public class MainMenuScreen {
         menuBox.setAlignment(Pos.TOP_LEFT);
         menuBox.setPadding(new Insets(5, 20, 5, 20));
         menuBox.setStyle(
-                "-fx-background-color: #ffffff; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 5);");
+                "-fx-background-color: #8fcccb; -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 5);");
         menuBox.setMinWidth(400);
         menuBox.setPrefHeight(500);
         menuBox.setMaxHeight(500);
@@ -141,22 +138,22 @@ public class MainMenuScreen {
             switch (text) {
                 case "Start New":
                     gameLauncher.checkWithinTime();
-                    if(gameLauncher.getWithinTime()){
+                    if (gameLauncher.getWithinTime()) {
                         gameLauncher.showSaveLoadScreen();
                         System.out.println(gameLauncher.getWithinTime());
                         break;
-                    }else{
+                    } else {
                         warningModal.show();
                         System.out.println("You are not allowed to play the game based on Parental Controls");
                         break;
                     }
                 case "Load Game":
                     gameLauncher.checkWithinTime();
-                    if(gameLauncher.getWithinTime()){
+                    if (gameLauncher.getWithinTime()) {
                         gameLauncher.showSaveLoadScreen();
                         System.out.println(gameLauncher.getWithinTime());
                         break;
-                    }else{
+                    } else {
                         warningModal.show();
                         System.out.println("You are not allowed to play the game based on Parental Controls");
                         break;
@@ -185,7 +182,7 @@ public class MainMenuScreen {
         imageBox.setPrefSize(400, 600);
 
         javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(
-                getClass().getResource("/BoJack.png").toExternalForm());
+                getClass().getResource("/mainmenu-pic.png").toExternalForm());
         imageView.setFitWidth(500);
         imageView.setFitHeight(600);
         imageView.setPreserveRatio(true);

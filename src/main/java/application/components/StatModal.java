@@ -80,6 +80,59 @@ public class StatModal extends StackPane {
         populateButtons(title);
     }
 
+    private void disableButtonsForState(String statName) {
+        String petState = gameplayController.getMainPetState();
+
+        // Disable all buttons initially
+        buttonContainer.getChildren().forEach(node -> {
+            if (node instanceof Button button) {
+                button.setDisable(true);
+            }
+        });
+
+        // Enable buttons based on the pet's state
+        switch (petState) {
+            case "dead":
+                System.out.println("Pet is dead: All commands disabled.");
+                break;
+
+            case "sleeping":
+                System.out.println("Pet is sleeping: Only 'Go to Sleep' button is enabled.");
+                if (statName.equals("Sleep")) {
+                    buttonContainer.getChildren().forEach(node -> {
+                        if (node instanceof Button button) {
+                            button.setDisable(false); // Only enable Sleep buttons
+                        }
+                    });
+                }
+                break;
+
+            case "angry":
+                System.out.println("Pet is angry: Only 'Happiness' commands are enabled.");
+                if (statName.equals("Happiness")) {
+                    buttonContainer.getChildren().forEach(node -> {
+                        if (node instanceof Button button) {
+                            button.setDisable(false); // Only enable Happiness buttons
+                        }
+                    });
+                }
+                break;
+
+            case "hungry":
+            case "normal":
+                System.out.println("Pet is in " + petState + " state: All commands enabled.");
+                buttonContainer.getChildren().forEach(node -> {
+                    if (node instanceof Button button) {
+                        button.setDisable(false); // Enable all buttons
+                    }
+                });
+                break;
+
+            default:
+                System.out.println("Unknown pet state: " + petState);
+        }
+    }
+
     private void populateButtons(String statName) {
         buttonContainer.getChildren().clear();
 
@@ -151,6 +204,8 @@ public class StatModal extends StackPane {
             default:
                 System.out.println("Unknown stat: " + statName);
         }
+
+        disableButtonsForState(statName); // Update button states after populating
     }
 
     private void addButton(String label, Runnable action) {
