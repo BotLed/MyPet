@@ -7,18 +7,18 @@ public class Patch extends Pet {
     // Default constructor for Ash
     public Patch() {
         super(
-            "Patch",               // Name of the pet
-            100,                 // Initial health
-            100,                 // Initial sleep level
-            100,                 // Initial fullness
-            100,                 // Initial happiness
-            new ArrayList<>()    // Initial states (empty list since the pet starts as normal)
-        );
+                "Patch", // Name of the pet
+                100, // Initial health
+                100, // Initial sleep level
+                100, // Initial fullness
+                100, // Initial happiness
+                new ArrayList<>(), // Initial states (empty list since the pet starts as normal)
+                1);
     }
 
     @Override
     public void adjustStats() {
-        this.setSleep(this.getSleep() - 5); 
+        this.setSleep(this.getSleep() - 5);
         this.setFullness(this.getFullness() - 1);
         this.setHappiness(this.getHappiness() - 3);
 
@@ -29,4 +29,3 @@ public class Patch extends Pet {
         this.checkAndAddState();
     }
 }
-

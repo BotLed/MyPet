@@ -81,10 +81,9 @@ public class ParentalControlScreen {
         return closeButton;
     }
 
-
     // Create password authentication screen
     private void createPasswordAuthenticationScreen(VBox mainContainer) {
-        mainContainer.getChildren().clear(); // Clear previous content
+        mainContainer.getChildren().clear();
 
         // Create the square box layout
         VBox box = new VBox(20);
@@ -151,8 +150,8 @@ public class ParentalControlScreen {
     // Create parental control tabs after successful authentication
     private VBox createParentalControlTabs() {
         // Outer container
-        VBox container = new VBox(20); // Increased spacing between elements
-        container.setAlignment(Pos.TOP_CENTER); // Align elements to the top
+        VBox container = new VBox(20);
+        container.setAlignment(Pos.TOP_CENTER);
         container.setStyle("-fx-background-color: #f9f9f9; -fx-padding: 20;");
 
         // Title (Moved outside the white box)
@@ -234,19 +233,19 @@ public class ParentalControlScreen {
     // Time Limit Section
     private VBox createTimeLimitView() {
         // Outer container
-        VBox timeLimitView = new VBox(8); // Reduced spacing
+        VBox timeLimitView = new VBox(8);
         timeLimitView.setPadding(new Insets(10));
         timeLimitView.setAlignment(Pos.TOP_CENTER);
 
         // Header container for title and toggle button
-        VBox headerContainer = new VBox(); // Vertical alignment for centered title and subtitle
-        headerContainer.setPadding(new Insets(5, 10, 5, 10)); // Reduced padding
+        VBox headerContainer = new VBox();
+        headerContainer.setPadding(new Insets(5, 10, 5, 10));
         headerContainer.setSpacing(5);
-        headerContainer.setAlignment(Pos.CENTER); // Center-align the header container horizontally
+        headerContainer.setAlignment(Pos.CENTER);
 
         // Header section (center-aligned)
-        VBox titleContainer = new VBox(2); // Reduced spacing
-        titleContainer.setAlignment(Pos.CENTER); // Center-align title and subtitle
+        VBox titleContainer = new VBox(2);
+        titleContainer.setAlignment(Pos.CENTER);
 
         Label header = new Label("Time Limit");
         header.setStyle("-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: black;");
@@ -258,15 +257,15 @@ public class ParentalControlScreen {
 
         // Slider-style toggle button
         ToggleButton timeLimitToggle = new ToggleButton("OFF");
-        timeLimitToggle.setPrefSize(100, 40); // Adjusted size
+        timeLimitToggle.setPrefSize(100, 40);
         timeLimitToggle.setStyle(
                 "-fx-font-size: 14; -fx-text-fill: black; -fx-background-color: #d3d3d3; " +
                         "-fx-border-radius: 20; -fx-background-radius: 20;");
 
         // Detailed settings container (hidden initially)
-        VBox detailedSettings = new VBox(8); // Reduced spacing
-        detailedSettings.setVisible(false); // Initially hidden
-        detailedSettings.setPadding(new Insets(5, 10, 10, 10)); // Reduced padding
+        VBox detailedSettings = new VBox(8);
+        detailedSettings.setVisible(false);
+        detailedSettings.setPadding(new Insets(5, 10, 10, 10));
         detailedSettings.setAlignment(Pos.TOP_CENTER);
 
         // Toggle button behavior
@@ -293,8 +292,8 @@ public class ParentalControlScreen {
 
         // Header for "Select Day & Time" section
         VBox dayTimeHeaderContainer = new VBox(3);
-        dayTimeHeaderContainer.setAlignment(Pos.CENTER); // Center-align header and subtitle
-        dayTimeHeaderContainer.setPadding(new Insets(5, 0, 5, 0)); // Reduced padding
+        dayTimeHeaderContainer.setAlignment(Pos.CENTER);
+        dayTimeHeaderContainer.setPadding(new Insets(5, 0, 5, 0));
 
         Label dayTimeHeader = new Label("Select Day & Time");
         dayTimeHeader.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: black;");
@@ -305,7 +304,7 @@ public class ParentalControlScreen {
         dayTimeHeaderContainer.getChildren().addAll(dayTimeHeader, instructions);
 
         // Day dropdown and "Apply to All" button
-        VBox daySelectionContainer = new VBox(5); // Reduced spacing
+        VBox daySelectionContainer = new VBox(5);
         daySelectionContainer.setAlignment(Pos.CENTER);
 
         ComboBox<String> daySelector = new ComboBox<>();
@@ -320,21 +319,21 @@ public class ParentalControlScreen {
         daySelectionContainer.getChildren().addAll(daySelector, applyToAllButton);
 
         // Hour buttons (24-hour clock)
-        VBox hourSelectionContainer = new VBox(8); // Reduced spacing
+        VBox hourSelectionContainer = new VBox(8);
         hourSelectionContainer.setAlignment(Pos.CENTER);
 
         Label hourInstructions = new Label("Select hours that are allowed for gameplay:");
         hourInstructions.setStyle("-fx-font-size: 14; -fx-text-fill: black;");
 
         GridPane hourGrid = new GridPane();
-        hourGrid.setHgap(10); // Increased horizontal gap
-        hourGrid.setVgap(6); // Kept a compact vertical gap
-        hourGrid.setAlignment(Pos.CENTER); // Center-aligned
+        hourGrid.setHgap(10);
+        hourGrid.setVgap(6);
+        hourGrid.setAlignment(Pos.CENTER);
 
         int columns = 8; // Number of columns in the grid to make it wider
         for (int hour = 0; hour < 24; hour++) {
             Button hourButton = new Button(String.format("%02d:00", hour));
-            hourButton.setPrefWidth(60); // Slightly increased button width
+            hourButton.setPrefWidth(60);
             hourButton.setStyle(
                     "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; -fx-border-radius: 5; -fx-background-radius: 5;");
 
@@ -367,12 +366,12 @@ public class ParentalControlScreen {
     // Stats Section
     private VBox createStatsView() {
         // Outer container
-        VBox statsView = new VBox(40); // Increased spacing to accommodate the larger vertical size
-        statsView.setPadding(new Insets(30)); // Increased padding for the larger window
+        VBox statsView = new VBox(40);
+        statsView.setPadding(new Insets(30));
         statsView.setAlignment(Pos.TOP_CENTER);
 
         // Total Play Time Section
-        VBox totalPlayTimeContainer = new VBox(15); // Adjusted spacing within the section
+        VBox totalPlayTimeContainer = new VBox(15);
         totalPlayTimeContainer.setAlignment(Pos.CENTER);
 
         Label totalPlayTimeHeader = new Label("0 Hours"); // Main heading
@@ -384,7 +383,7 @@ public class ParentalControlScreen {
         totalPlayTimeContainer.getChildren().addAll(totalPlayTimeHeader, totalPlayTimeSubheading);
 
         // Average Play Time Section
-        VBox avgPlayTimeContainer = new VBox(15); // Adjusted spacing within the section
+        VBox avgPlayTimeContainer = new VBox(15);
         avgPlayTimeContainer.setAlignment(Pos.CENTER);
 
         Label avgPlayTimeHeader = new Label("0 Hours"); // Main heading
@@ -416,7 +415,7 @@ public class ParentalControlScreen {
     private VBox createPetRevivalView() {
         // Outer container
         VBox petRevivalView = new VBox(30); // Same spacing as Stats View
-        petRevivalView.setPadding(new Insets(30)); // Same padding as Stats View
+        petRevivalView.setPadding(new Insets(30));
         petRevivalView.setAlignment(Pos.TOP_CENTER);
 
         // Pet Status Label
@@ -443,7 +442,7 @@ public class ParentalControlScreen {
                 String petImage = petData[1];
 
                 // Horizontal Oval Container
-                HBox petContainer = new HBox(15); // Spacing inside the oval
+                HBox petContainer = new HBox(15);
                 petContainer.setPadding(new Insets(10));
                 petContainer.setAlignment(Pos.CENTER_LEFT);
                 petContainer.setStyle(
@@ -461,7 +460,7 @@ public class ParentalControlScreen {
 
                 // Revive Button (Red Heart)
                 Label reviveHeart = new Label("\u2764"); // Unicode for red heart
-                reviveHeart.setFont(Font.font("Arial", 28)); // Font size for larger heart
+                reviveHeart.setFont(Font.font("Arial", 28));
                 reviveHeart.setStyle("-fx-text-fill: red; -fx-cursor: hand;");
                 reviveHeart.setOnMouseClicked(e -> {
                     petList.getChildren().remove(petContainer); // Remove pet from list
@@ -482,7 +481,7 @@ public class ParentalControlScreen {
         petRevivalView.getChildren().addAll(petStatusLabel, petList);
 
         // Set locked window size (same as Stats View)
-        petRevivalView.setPrefSize(600, 400); // Adjust dimensions to match your Stats View
+        petRevivalView.setPrefSize(600, 400);
         return petRevivalView;
     }
 
