@@ -1,8 +1,7 @@
 package application.view;
 
-import java.io.File;
-
 import application.GameLauncher;
+import application.controller.ParentalControlController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -23,15 +22,25 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
+import java.util.ArrayList; 
+import java.util.HashSet;   
+import java.util.List;      
+import java.util.Set;
+
 public class ParentalControlScreen {
 
     private Scene scene; // Scene for ParentalControlScreen
     private Stage stage;
     private GameLauncher gameLauncher;
+    private ParentalControlController controller;
 
-    public ParentalControlScreen(GameLauncher gameLauncher, Stage stage) {
+    //Stores selected hrs
+    private Set<Integer> selectedHours = new HashSet<>();
+
+    public ParentalControlScreen(GameLauncher gameLauncher, Stage stage, ParentalControlController controller) {
         this.gameLauncher = gameLauncher;
         this.stage = stage;
+        this.controller = controller;
 
         StackPane mainContainer = new StackPane();
 
@@ -39,14 +48,8 @@ public class ParentalControlScreen {
         contentContainer.setPadding(new Insets(20));
         contentContainer.setAlignment(Pos.CENTER);
 
-        // Check if password is already set
-        if (isPasswordSet()) {
-            // Password authentication screen
-            createPasswordAuthenticationScreen(contentContainer);
-        } else {
-            // Password setup screen
-            createPasswordAuthenticationScreen(contentContainer);
-        }
+        // Password authentication screen
+        createPasswordAuthenticationScreen(contentContainer);
 
         // Add both content and overlay to the StackPane
         Button closeButton = createOverlayButton(); // "X" button as a separate method
@@ -57,12 +60,6 @@ public class ParentalControlScreen {
 
         // Create the scene with size 1200x800
         this.scene = new Scene(mainContainer, 1200, 800);
-    }
-
-    // Check if the password file exists
-    private boolean isPasswordSet() {
-        File passwordFile = new File("parent_password.txt");
-        return passwordFile.exists();
     }
 
     // Create the "X" button overlay
@@ -83,7 +80,7 @@ public class ParentalControlScreen {
 
     // Create password authentication screen
     private void createPasswordAuthenticationScreen(VBox mainContainer) {
-        mainContainer.getChildren().clear();
+        mainContainer.getChildren().clear(); // Clear previous content
 
         // Create the square box layout
         VBox box = new VBox(20);
@@ -126,9 +123,8 @@ public class ParentalControlScreen {
 
         confirmButton.setOnAction(e -> {
             String enteredPassword = passwordField.getText();
-            String storedPassword = "password";
 
-            if (enteredPassword.equals(storedPassword)) {
+            if (controller.verifyPassword(enteredPassword)) {
                 // Proceed to parental control sections
                 VBox tabPaneContainer = createParentalControlTabs();
                 mainContainer.getChildren().clear();
@@ -150,8 +146,8 @@ public class ParentalControlScreen {
     // Create parental control tabs after successful authentication
     private VBox createParentalControlTabs() {
         // Outer container
-        VBox container = new VBox(20);
-        container.setAlignment(Pos.TOP_CENTER);
+        VBox container = new VBox(20); // Increased spacing between elements
+        container.setAlignment(Pos.TOP_CENTER); // Align elements to the top
         container.setStyle("-fx-background-color: #f9f9f9; -fx-padding: 20;");
 
         // Title (Moved outside the white box)
@@ -233,19 +229,19 @@ public class ParentalControlScreen {
     // Time Limit Section
     private VBox createTimeLimitView() {
         // Outer container
-        VBox timeLimitView = new VBox(8);
+        VBox timeLimitView = new VBox(8); // Reduced spacing
         timeLimitView.setPadding(new Insets(10));
         timeLimitView.setAlignment(Pos.TOP_CENTER);
 
         // Header container for title and toggle button
-        VBox headerContainer = new VBox();
-        headerContainer.setPadding(new Insets(5, 10, 5, 10));
+        VBox headerContainer = new VBox(); // Vertical alignment for centered title and subtitle
+        headerContainer.setPadding(new Insets(5, 10, 5, 10)); // Reduced padding
         headerContainer.setSpacing(5);
-        headerContainer.setAlignment(Pos.CENTER);
+        headerContainer.setAlignment(Pos.CENTER); // Center-align the header container horizontally
 
         // Header section (center-aligned)
-        VBox titleContainer = new VBox(2);
-        titleContainer.setAlignment(Pos.CENTER);
+        VBox titleContainer = new VBox(2); // Reduced spacing
+        titleContainer.setAlignment(Pos.CENTER); // Center-align title and subtitle
 
         Label header = new Label("Time Limit");
         header.setStyle("-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: black;");
@@ -255,126 +251,185 @@ public class ParentalControlScreen {
 
         titleContainer.getChildren().addAll(header, subHeader);
 
-        // Slider-style toggle button
-        ToggleButton timeLimitToggle = new ToggleButton("OFF");
-        timeLimitToggle.setPrefSize(100, 40);
-        timeLimitToggle.setStyle(
-                "-fx-font-size: 14; -fx-text-fill: black; -fx-background-color: #d3d3d3; " +
-                        "-fx-border-radius: 20; -fx-background-radius: 20;");
+        boolean isEnabled = controller.isEnabled();
+        ToggleButton timeLimitToggle = new ToggleButton();
+        timeLimitToggle.setPrefSize(100, 40); // Adjusted size
+        
+        //sets toggle button based on whether enabled or not
+        if(isEnabled){
+            timeLimitToggle.setText("ON");
+        }else{
+            timeLimitToggle.setText("OFF");
+        }
+        
+        //sets the toggle button style based on isEnabled
+        if(isEnabled){
+            timeLimitToggle.setStyle(
+                "-fx-font-size: 14; -fx-background-color: lightgreen; -fx-text-fill: black; " +
+                "-fx-border-radius: 20; -fx-background-radius: 20;"
+            );
+
+        }else{
+            timeLimitToggle.setStyle(
+                "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; " +
+                "-fx-border-radius: 20; -fx-background-radius: 20;"
+            );
+        }
 
         // Detailed settings container (hidden initially)
-        VBox detailedSettings = new VBox(8);
-        detailedSettings.setVisible(false);
-        detailedSettings.setPadding(new Insets(5, 10, 10, 10));
+        VBox detailedSettings = new VBox(8); // Reduced spacing
+        detailedSettings.setVisible(isEnabled); //visibility dependant upon whether parental control enabled
+        detailedSettings.setPadding(new Insets(5, 10, 10, 10)); // Reduced padding
         detailedSettings.setAlignment(Pos.TOP_CENTER);
 
         // Toggle button behavior
         timeLimitToggle.setOnAction(e -> {
-            if (timeLimitToggle.getText().equals("OFF")) {
-                // Set to ON
+            boolean isSelected = timeLimitToggle.getText().equals("OFF");
+            if(isSelected){
+                //Set to ON
                 timeLimitToggle.setText("ON");
                 timeLimitToggle.setStyle(
                         "-fx-font-size: 14; -fx-background-color: lightgreen; -fx-text-fill: black; " +
                                 "-fx-border-radius: 20; -fx-background-radius: 20;");
-                detailedSettings.setVisible(true); // Show detailed settings
-            } else {
-                // Set to OFF
+                detailedSettings.setVisible(true); //Show detailed settings
+            }else{
+                //Set to OFF
                 timeLimitToggle.setText("OFF");
                 timeLimitToggle.setStyle(
                         "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; " +
                                 "-fx-border-radius: 20; -fx-background-radius: 20;");
-                detailedSettings.setVisible(false); // Hide detailed settings
+                detailedSettings.setVisible(false); //Hide detailed settings
             }
+            //Updates the controller's enabled status
+            controller.setEnabled(isSelected);
         });
+    
 
         // Add title and toggle button to the header container
         headerContainer.getChildren().addAll(titleContainer, timeLimitToggle);
 
         // Header for "Select Day & Time" section
         VBox dayTimeHeaderContainer = new VBox(3);
-        dayTimeHeaderContainer.setAlignment(Pos.CENTER);
-        dayTimeHeaderContainer.setPadding(new Insets(5, 0, 5, 0));
+        dayTimeHeaderContainer.setAlignment(Pos.CENTER); // Center-align header and subtitle
+        dayTimeHeaderContainer.setPadding(new Insets(5, 0, 5, 0)); // Reduced padding
 
-        Label dayTimeHeader = new Label("Select Day & Time");
+        Label dayTimeHeader = new Label("Select Time");
         dayTimeHeader.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: black;");
 
-        Label instructions = new Label("Choose a day and time where your child is allowed to play");
+        Label instructions = new Label("Choose times where your child is allowed to play");
         instructions.setStyle("-fx-font-size: 14; -fx-text-fill: gray;");
 
         dayTimeHeaderContainer.getChildren().addAll(dayTimeHeader, instructions);
 
-        // Day dropdown and "Apply to All" button
-        VBox daySelectionContainer = new VBox(5);
-        daySelectionContainer.setAlignment(Pos.CENTER);
-
-        ComboBox<String> daySelector = new ComboBox<>();
-        daySelector.getItems().addAll("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
-        daySelector.setPromptText("Select a day");
-        daySelector.setStyle("-fx-font-size: 14; -fx-background-color: #ffffff;");
-
-        Button applyToAllButton = new Button("Apply to All");
-        applyToAllButton.setStyle(
-                "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; -fx-border-radius: 10; -fx-background-radius: 10;");
-
-        daySelectionContainer.getChildren().addAll(daySelector, applyToAllButton);
 
         // Hour buttons (24-hour clock)
-        VBox hourSelectionContainer = new VBox(8);
+        VBox hourSelectionContainer = new VBox(8); // Reduced spacing
         hourSelectionContainer.setAlignment(Pos.CENTER);
 
         Label hourInstructions = new Label("Select hours that are allowed for gameplay:");
         hourInstructions.setStyle("-fx-font-size: 14; -fx-text-fill: black;");
 
         GridPane hourGrid = new GridPane();
-        hourGrid.setHgap(10);
-        hourGrid.setVgap(6);
-        hourGrid.setAlignment(Pos.CENTER);
+        hourGrid.setHgap(10); // Increased horizontal gap
+        hourGrid.setVgap(6); // Kept a compact vertical gap
+        hourGrid.setAlignment(Pos.CENTER); // Center-aligned
 
         int columns = 8; // Number of columns in the grid to make it wider
+
+        //getting selected hrs from the controllers allowed hrs
+        selectedHours.clear();
+        selectedHours.addAll(controller.getAllowedHours());
+
         for (int hour = 0; hour < 24; hour++) {
             Button hourButton = new Button(String.format("%02d:00", hour));
-            hourButton.setPrefWidth(60);
-            hourButton.setStyle(
-                    "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; -fx-border-radius: 5; -fx-background-radius: 5;");
+            hourButton.setPrefWidth(60); // Slightly increased button width
 
-            // Toggle color on selection
+            String buttonStyle;
+            if (selectedHours.contains(hour)) {
+                buttonStyle = "-fx-font-size: 14; -fx-background-color: lightgreen; -fx-text-fill: black; " +
+                              "-fx-border-radius: 5; -fx-background-radius: 5;";
+            } else {
+                buttonStyle = "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; " +
+                              "-fx-border-radius: 5; -fx-background-radius: 5;";
+            }
+            hourButton.setStyle(buttonStyle);
+
+            final int currentHour = hour; //for use in lambda
+            
+
+
+            //adds or removes hr when clicked (from selected hr not json)
             hourButton.setOnAction(e -> {
-                if (hourButton.getStyle().contains("lightgreen")) {
+                if (selectedHours.contains(currentHour)) {
+                    selectedHours.remove(currentHour);
                     hourButton.setStyle(
-                            "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; -fx-border-radius: 5; -fx-background-radius: 5;");
+                            "-fx-font-size: 14; -fx-background-color: #d3d3d3; -fx-text-fill: black; " +
+                                    "-fx-border-radius: 5; -fx-background-radius: 5;");
                 } else {
+                    selectedHours.add(currentHour);
                     hourButton.setStyle(
-                            "-fx-font-size: 14; -fx-background-color: lightgreen; -fx-text-fill: black; -fx-border-radius: 5; -fx-background-radius: 5;");
+                            "-fx-font-size: 14; -fx-background-color: lightgreen; -fx-text-fill: black; " +
+                                    "-fx-border-radius: 5; -fx-background-radius: 5;");
                 }
             });
 
-            // Add to grid (row = hour / columns, column = hour % columns)
+            //Add to grid 
             hourGrid.add(hourButton, hour % columns, hour / columns);
         }
 
         hourSelectionContainer.getChildren().addAll(hourInstructions, hourGrid);
 
         // Add components to the detailed settings
-        detailedSettings.getChildren().addAll(dayTimeHeaderContainer, daySelectionContainer, hourSelectionContainer);
+        detailedSettings.getChildren().addAll(dayTimeHeaderContainer, hourSelectionContainer);
 
-        // Add all components to the main view
-        timeLimitView.getChildren().addAll(headerContainer, detailedSettings);
+        //save button to save the settings
+        Button saveButton = new Button("Save");
+        saveButton.setStyle(
+            "-fx-font-size: 18; -fx-background-color: #d3d3d3; -fx-text-fill: black; " +
+            "-fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 10 30;");
+        saveButton.setOnAction(e -> {
+            //save selectedHours to controller
+            controller.setAllowedHours(new ArrayList<>(selectedHours));
+            
+            //show confirmation msg
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Settings saved successfully.", ButtonType.OK);
+            alert.showAndWait();
+        });
 
+        timeLimitView.getChildren().addAll(headerContainer, detailedSettings, saveButton);
+        
         return timeLimitView;
     }
 
     // Stats Section
     private VBox createStatsView() {
         // Outer container
-        VBox statsView = new VBox(40);
-        statsView.setPadding(new Insets(30));
+        VBox statsView = new VBox(40); // Increased spacing to accommodate the larger vertical size
+        statsView.setPadding(new Insets(30)); // Increased padding for the larger window
         statsView.setAlignment(Pos.TOP_CENTER);
 
+
+        int totalTimePlayed = controller.getTotalTimePlayed();
+        int numberOfLaunches = controller.getNumberOfLaunches();
+
+        //calculate average session time
+        int averageSessionTime;
+        if(numberOfLaunches > 0){
+            averageSessionTime = totalTimePlayed/numberOfLaunches;
+        }else{
+            averageSessionTime = 0;
+        }
+
+        String totalTimePlayedStr = String.format("%d Minutes", totalTimePlayed);
+        String averageSessionTimeStr = String.format("%d Minutes", averageSessionTime);
+
+
+
         // Total Play Time Section
-        VBox totalPlayTimeContainer = new VBox(15);
+        VBox totalPlayTimeContainer = new VBox(15); // Adjusted spacing within the section
         totalPlayTimeContainer.setAlignment(Pos.CENTER);
 
-        Label totalPlayTimeHeader = new Label("0 Hours"); // Main heading
+        Label totalPlayTimeHeader = new Label(totalTimePlayedStr); // Main heading
         totalPlayTimeHeader.setStyle("-fx-font-size: 40; -fx-font-weight: bold; -fx-text-fill: black;");
 
         Label totalPlayTimeSubheading = new Label("Total Play Time");
@@ -383,10 +438,10 @@ public class ParentalControlScreen {
         totalPlayTimeContainer.getChildren().addAll(totalPlayTimeHeader, totalPlayTimeSubheading);
 
         // Average Play Time Section
-        VBox avgPlayTimeContainer = new VBox(15);
+        VBox avgPlayTimeContainer = new VBox(15); // Adjusted spacing within the section
         avgPlayTimeContainer.setAlignment(Pos.CENTER);
 
-        Label avgPlayTimeHeader = new Label("0 Hours"); // Main heading
+        Label avgPlayTimeHeader = new Label(averageSessionTimeStr); // Main heading
         avgPlayTimeHeader.setStyle("-fx-font-size: 40; -fx-font-weight: bold; -fx-text-fill: black;");
 
         Label avgPlayTimeSubheading = new Label("Average Play Time");
@@ -394,7 +449,7 @@ public class ParentalControlScreen {
 
         avgPlayTimeContainer.getChildren().addAll(avgPlayTimeHeader, avgPlayTimeSubheading);
 
-        // Reset Stats Button
+        //Reset Stats Button
         Button resetStatsButton = new Button("Reset");
         resetStatsButton.setStyle(
                 "-fx-font-size: 22; -fx-background-color: red; -fx-text-fill: white; " +
@@ -402,6 +457,10 @@ public class ParentalControlScreen {
 
         // Reset action
         resetStatsButton.setOnAction(e -> {
+
+            //resetting values in json to 1 for time played and 0 for num of launches
+            controller.resetStats();
+
             totalPlayTimeHeader.setText("0 Hours");
             avgPlayTimeHeader.setText("0 Hours");
         });
@@ -415,7 +474,7 @@ public class ParentalControlScreen {
     private VBox createPetRevivalView() {
         // Outer container
         VBox petRevivalView = new VBox(30); // Same spacing as Stats View
-        petRevivalView.setPadding(new Insets(30));
+        petRevivalView.setPadding(new Insets(30)); // Same padding as Stats View
         petRevivalView.setAlignment(Pos.TOP_CENTER);
 
         // Pet Status Label
@@ -442,7 +501,7 @@ public class ParentalControlScreen {
                 String petImage = petData[1];
 
                 // Horizontal Oval Container
-                HBox petContainer = new HBox(15);
+                HBox petContainer = new HBox(15); // Spacing inside the oval
                 petContainer.setPadding(new Insets(10));
                 petContainer.setAlignment(Pos.CENTER_LEFT);
                 petContainer.setStyle(
@@ -460,7 +519,7 @@ public class ParentalControlScreen {
 
                 // Revive Button (Red Heart)
                 Label reviveHeart = new Label("\u2764"); // Unicode for red heart
-                reviveHeart.setFont(Font.font("Arial", 28));
+                reviveHeart.setFont(Font.font("Arial", 28)); // Font size for larger heart
                 reviveHeart.setStyle("-fx-text-fill: red; -fx-cursor: hand;");
                 reviveHeart.setOnMouseClicked(e -> {
                     petList.getChildren().remove(petContainer); // Remove pet from list
@@ -481,7 +540,7 @@ public class ParentalControlScreen {
         petRevivalView.getChildren().addAll(petStatusLabel, petList);
 
         // Set locked window size (same as Stats View)
-        petRevivalView.setPrefSize(600, 400);
+        petRevivalView.setPrefSize(600, 400); // Adjust dimensions to match your Stats View
         return petRevivalView;
     }
 

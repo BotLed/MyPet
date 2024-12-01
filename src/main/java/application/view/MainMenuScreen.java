@@ -127,11 +127,25 @@ public class MainMenuScreen {
 
             switch (text) {
                 case "Start New":
-                    gameLauncher.showSaveLoadScreen();
-                    break;
+                    gameLauncher.checkWithinTime();
+                    if(gameLauncher.getWithinTime()){
+                        gameLauncher.showSaveLoadScreen();
+                        System.out.println(gameLauncher.getWithinTime());
+                        break;
+                    }else{
+                        System.out.println("You are not allowed to play the game based on Parental Controls");
+                        break;
+                    }
                 case "Load Game":
-                    gameLauncher.showSaveLoadScreen();
-                    break;
+                    gameLauncher.checkWithinTime();
+                    if(gameLauncher.getWithinTime()){
+                        gameLauncher.showSaveLoadScreen();
+                        System.out.println(gameLauncher.getWithinTime());
+                        break;
+                    }else{
+                        System.out.println("You are not allowed to play the game based on Parental Controls");
+                        break;
+                    }
                 case "Tutorial":
                     System.out.println("Tutorial screen opened!");
                     gameLauncher.showTutorialScreen();
