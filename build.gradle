@@ -19,7 +19,7 @@ dependencies {
     implementation 'org.openjfx:javafx-media:20'
     implementation 'com.google.code.gson:gson:2.10.1'
 
-    implementation 'com.google.code.gson:gson:2.10.1'
+    //implementation 'com.google.code.gson:gson:2.10.1'
 
     // Testing framework
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'

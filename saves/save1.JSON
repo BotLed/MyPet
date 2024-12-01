@@ -1,0 +1,20 @@
+{
+  "player": {
+    "name": "Player",
+    "score": 18,
+    "currentPet": {
+      "name": "test",
+      "currentPetStates": [],
+      "health": 100,
+      "sleep": 34,
+      "fullness": 40,
+      "happiness": 67,
+      "petType": 2
+    },
+    "inventory": {
+      "foodItems": { "fruit": 0, "meat": 0, "vegetable": 0 },
+      "giftItems": { "ball": 0, "play place": 0, "toy": 0 }
+    }
+  },
+  "saveSlot": 1
+}

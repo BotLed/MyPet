@@ -1,6 +1,5 @@
 package application.view;
 
-
 import application.GameLauncher;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -26,11 +25,11 @@ public class TutorialScreen {
 
     // Array of slide images
     private Image[] tutorialSlides = {
-        new Image("pic1.jpg"),
-        new Image("pic2.jpg"),
-        new Image("pic3.jpg"),
-        new Image("pic4.jpg"),
-        new Image("pic5.jpg")
+            new Image("pic1.jpg"),
+            new Image("pic2.jpg"),
+            new Image("pic3.jpg"),
+            new Image("pic4.jpg"),
+            new Image("pic5.jpg")
     };
 
     public TutorialScreen(GameLauncher gameLauncher) {
@@ -44,8 +43,8 @@ public class TutorialScreen {
         // Main tutorial image in a smaller window
         tutorialImageView = new ImageView(tutorialSlides[0]);
         tutorialImageView.setPreserveRatio(true);
-        tutorialImageView.setFitWidth(800); // Fixed width
-        tutorialImageView.setFitHeight(600); // Fixed height
+        tutorialImageView.setFitWidth(800);
+        tutorialImageView.setFitHeight(600);
 
         // Wrap the ImageView in a container with fixed size to prevent resizing
         StackPane imageContainer = new StackPane(tutorialImageView);
@@ -53,7 +52,7 @@ public class TutorialScreen {
         imageContainer.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         imageContainer.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         imageContainer.setAlignment(Pos.CENTER);
-        imageContainer.setPadding(new Insets(0, 0, 0, 0)); // No padding to push it even higher
+        imageContainer.setPadding(new Insets(0, 0, 0, 0));
         root.setCenter(imageContainer);
 
         // Overlay with close button and title
@@ -69,20 +68,19 @@ public class TutorialScreen {
 
     private StackPane createOverlay() {
         StackPane overlay = new StackPane();
-        overlay.setPadding(new Insets(10)); // Reduced padding
+        overlay.setPadding(new Insets(10));
 
         // "X" Button for closing the screen
         Button closeButton = new Button("X");
         closeButton.setFont(Font.font("Arial", FontWeight.BOLD, 30));
         closeButton.setStyle(
                 "-fx-background-color: #ffffff; " +
-                "-fx-border-color: #cccccc; " +
-                "-fx-border-radius: 50; " +
-                "-fx-background-radius: 50; " +
-                "-fx-min-width: 70; " +
-                "-fx-min-height: 70; " +
-                "-fx-text-fill: black;"
-        );
+                        "-fx-border-color: #cccccc; " +
+                        "-fx-border-radius: 50; " +
+                        "-fx-background-radius: 50; " +
+                        "-fx-min-width: 70; " +
+                        "-fx-min-height: 70; " +
+                        "-fx-text-fill: black;");
         closeButton.setOnAction(e -> gameLauncher.showMainMenu());
 
         StackPane.setAlignment(closeButton, Pos.TOP_LEFT);
@@ -103,7 +101,7 @@ public class TutorialScreen {
     private HBox createSlideSelector() {
         HBox slideSelector = new HBox(10);
         slideSelector.setAlignment(Pos.CENTER);
-        slideSelector.setPadding(new Insets(0)); // Fully removed padding for the bottom
+        slideSelector.setPadding(new Insets(0));
         slideSelector.setStyle("-fx-background-color: #ffffff;");
 
         ToggleGroup toggleGroup = new ToggleGroup();
@@ -114,10 +112,9 @@ public class TutorialScreen {
             slideButton.setFont(Font.font("Arial", FontWeight.BOLD, 20));
             slideButton.setStyle(
                     "-fx-background-color: #dcdcdc; " +
-                    "-fx-border-color: #aaaaaa; " +
-                    "-fx-border-radius: 10; " +
-                    "-fx-text-fill: black;"
-            );
+                            "-fx-border-color: #aaaaaa; " +
+                            "-fx-border-radius: 10; " +
+                            "-fx-text-fill: black;");
             slideButton.setToggleGroup(toggleGroup);
 
             if (i == 0) {
@@ -140,7 +137,7 @@ public class TutorialScreen {
         tutorialImageView.setFitWidth(800);
         tutorialImageView.setFitHeight(600);
         tutorialImageView.setPreserveRatio(true);
-        tutorialImageView.getParent().layout(); // Force layout update
-        slideSelector.setVisible(true); // Ensure the selector remains visible
+        tutorialImageView.getParent().layout();
+        slideSelector.setVisible(true);
     }
 }

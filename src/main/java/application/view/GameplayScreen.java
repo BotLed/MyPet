@@ -1,5 +1,6 @@
 package application.view;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TimerTask;
 
@@ -10,6 +11,8 @@ import application.components.SettingsModal;
 import application.components.StatModal;
 import application.controllers.FeedbackController;
 import application.controllers.GameplayController;
+import application.model.GameState;
+import application.model.Pet;
 import javafx.geometry.Pos;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -26,7 +29,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import application.components.InventoryModal;
+import application.components.PauseModal;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -44,21 +49,42 @@ public class GameplayScreen {
     private VBox contentLayout;
     private StackPane statsContainer;
     private StatModal statModal;
-    private Button inventoryButton; // Inventory button
+    private Button inventoryButton;
     private Button settingsButton;
     private InventoryModal inventoryModal;
-    private Text scoreText; // Score display
-    private int score = 0; // Player's initial score
-    private ImageView petImageView; // ImageView to display the pet's sprite
+    private Text scoreText;
+    private int score = 0;
+    private ImageView petImageView;
     private FeedbackController feedbackController;
+    private GameState gameState;
+    private Timer periodicUpdateTimer;
+    private boolean isPetConfirmed = false;
+    private Button pauseButton;
+    private PauseModal pauseModal;
 
-    public GameplayScreen(GameLauncher gameLauncher, FeedbackController feedbackController, boolean isNewGame,
+    public GameplayScreen(GameLauncher gameLauncher, FeedbackController feedbackController,
+            GameplayController controller, GameState gameState,
             String petName) {
         this.gameLauncher = gameLauncher;
-        this.isNewGame = isNewGame;
+        this.feedbackController = feedbackController;
+        this.gameState = gameState;
+        this.controller = controller;
+
+        // Initialize GameplayController with GameState
+        this.controller = new GameplayController(gameState);
+        this.inventoryModal = new InventoryModal(gameState, feedbackController);
+        controller.setOnInventoryUpdated(() -> inventoryModal.refreshInventoryPage());
+
         this.petName = petName;
-        this.controller = controller; // make sure this returns the controller from the game laucher!!!!!
+
         initializeScreen();
+
+        // For loaded games, start the stat decay immediately
+        if (gameState.getPlayer().getCurrentPet() != null &&
+                gameState.getPlayer().getCurrentPet().getName() != null) {
+            isPetConfirmed = true;
+            controller.startStatDecay();
+        }
     }
 
     public Scene getScene() {
@@ -71,6 +97,13 @@ public class GameplayScreen {
         root.setPadding(new Insets(0));
         root.setStyle("-fx-background-color: #f5f5f5;");
         root.setAlignment(Pos.TOP_CENTER);
+
+        // Fetch values from the controller
+        // String petName = controller.getPetName();
+        int hunger = controller.getPetHunger();
+        int happiness = controller.getPetHappiness();
+        int sleep = controller.getPetSleep();
+        int health = controller.getPetHealth();
 
         // Play background music
         if (feedbackController != null) {
@@ -93,67 +126,118 @@ public class GameplayScreen {
 
         // Go-Back Button
         Button goBackButton = createGoBackButton();
-        goBackButton.setLayoutX(20); // Adjust for top-left corner
+        goBackButton.setLayoutX(20);
         goBackButton.setLayoutY(20);
 
         // Settings Button
         settingsButton = createSettingsButton();
-        settingsButton.setLayoutX(1120); // Align to bottom-right corner
-        settingsButton.setLayoutY(700); // Adjust to be within 800 height limit
+        settingsButton.setLayoutX(1120);
+        settingsButton.setLayoutY(700);
+
+        // Pause Button
+        pauseButton = createPauseButton();
+        pauseButton.setLayoutX(1120);
+        pauseButton.setLayoutY(625);
 
         // Stats Container
         statsContainer = createStatsContainer();
-        statsContainer.setLayoutX(20); // Align to bottom-left corner
-        statsContainer.setLayoutY(450); // Adjust to be within 800 height limit
+        statsContainer.setLayoutX(20);
+        statsContainer.setLayoutY(450);
 
         // Inventory Button
         inventoryButton = createInventoryButton();
-        inventoryButton.setLayoutX(20); // Align to bottom-left corner
+        inventoryButton.setLayoutX(20);
         inventoryButton.setLayoutY(400);
 
         // TESTINGGGGGGGGGGG
-        updateStatBar("Health", 75); // 75% fill
-        updateStatBar("Hunger", 50); // 50% fill
-        updateStatBar("Happiness", 0); // Fully filled
-        updateStatBar("Energy", 25); // 25% fill
+        updateStatBar("Hunger", hunger);
+        updateStatBar("Happiness", happiness);
+        updateStatBar("Sleep", sleep);
+        updateStatBar("Health", health);
 
         // Add interactive elements to the button layer
-        buttonLayer.getChildren().addAll(goBackButton, settingsButton, statsContainer, inventoryButton);
-        buttonLayer.setPickOnBounds(false); // Allow clicks to pass through empty spaces
+        buttonLayer.getChildren().addAll(goBackButton, pauseButton, settingsButton, statsContainer, inventoryButton);
+        buttonLayer.setPickOnBounds(false);
 
         // Add button layer to the layered layout
         layeredLayout.getChildren().add(buttonLayer);
 
         // Modal Layer (naming, settings, and stat modals)
-        setupNamingModal(); // Initialize the naming modal
-        settingsModal = new SettingsModal();
-        statModal = new StatModal();
-        inventoryModal = new InventoryModal();
+        setupNamingModal();
+        settingsModal = new SettingsModal(feedbackController);
+
+        pauseModal = new PauseModal(feedbackController, controller);
+        statModal = new StatModal(controller, inventoryModal, feedbackController);
+        inventoryModal = new InventoryModal(gameState, feedbackController);
 
         // Add modals to the layered layout
-        layeredLayout.getChildren().addAll(namingModal, settingsModal, statModal, inventoryModal);
+        layeredLayout.getChildren().addAll(namingModal, settingsModal, pauseModal, statModal, inventoryModal);
 
         // Add layered layout to the root
         root.getChildren().add(layeredLayout);
 
         // Handle new or existing game
-        if (isNewGame) {
+        if (gameState.getPlayer().getCurrentPet() == null ||
+                gameState.getPlayer().getCurrentPet().getName() == null) {
+            System.out.println("Pet is not initialized or name is null. Showing pet selection.");
             setupPetSelection(contentLayout);
-            toggleUIElementsVisibility(false); // Hide settings and stats until pet is named
+            toggleUIElementsVisibility(false);
         } else {
+            String petName = gameState.getPlayer().getCurrentPet().getName();
             setupMainGameplay(contentLayout, petName);
-            toggleUIElementsVisibility(true); // Show settings and stats for existing game
+            toggleUIElementsVisibility(true);
         }
 
         startPeriodicUpdates();
+
+        root.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                returnToMainMenu();
+            } else if (event.getCode() == KeyCode.P) {
+                pauseModal.setVisible(true); // Open the pause modal
+                // stopPeriodicUpdates(); // Stop periodic updates
+                feedbackController.stopBackgroundMusic(); // Stop the background music
+                System.out.println("Game paused (via P key).");
+            } else if (event.getCode() == KeyCode.F) {
+                // Simulate clicking on the "Hunger" stat bar
+                statModal.setTitle("Hunger");
+                statModal.setVisible(true);
+                feedbackController.playSoundEffect("buttonSelect"); // Play sound effect
+                System.out.println("StatModal opened for Hunger (via F key).");
+            } else if (event.getCode() == KeyCode.G) {
+                // Simulate clicking on the "Hunger" stat bar
+                statModal.setTitle("Happiness");
+                statModal.setVisible(true);
+                feedbackController.playSoundEffect("buttonSelect"); // Play sound effect
+                System.out.println("StatModal opened for Hunger (via F key).");
+            }
+        });
     }
+
+    /*
+     * private void setupPetImage(String petState, String petName) {
+     * // Use the pet state and name to set up the image
+     * if (petName != null && !petName.isEmpty()) {
+     * String imagePath = "/sprite states/" + petName + "/" + petState +
+     * "-state.png";
+     * try {
+     * Image petImage = new Image(getClass().getResourceAsStream(imagePath));
+     * petImageView.setImage(petImage);
+     * } catch (Exception e) {
+     * System.err.println("Error loading pet image: " + e.getMessage());
+     * }
+     * } else {
+     * System.out.println("No pet name provided, setting default image.");
+     * }
+     * }
+     */
 
     private void setupPetSelection(VBox contentLayout) {
         // Top bar with Close Button and Title
         HBox topBar = new HBox(10);
 
         topBar.setAlignment(Pos.TOP_LEFT);
-        topBar.setPadding(new Insets(10, 0, 10, 60)); // Adjust spacing
+        topBar.setPadding(new Insets(10, 0, 10, 60));
 
         // Close Button with Circle Background
         StackPane closeButtonContainer = new StackPane();
@@ -163,14 +247,6 @@ public class GameplayScreen {
         FontIcon closeIcon = new FontIcon("fas-times");
         closeIcon.setIconSize(20);
         closeIcon.setIconColor(Color.BLACK);
-
-        /*
-         * Button closeButton = new Button();
-         * closeButton.setGraphic(closeIcon);
-         * closeButton.setStyle("-fx-background-color: transparent;");
-         * closeButton.setOnAction(e -> returnToMainMenu());
-         * closeButtonContainer.getChildren().addAll(closeButtonCircle, closeButton);
-         */
 
         // Title for the top bar
         VBox titleBox = new VBox();
@@ -229,11 +305,10 @@ public class GameplayScreen {
             petImage = new Image(getClass().getResourceAsStream("/default.png")); // Fallback image
         }
         ImageView petImageView = new ImageView(petImage);
-        petImageView.setFitWidth(200); // Adjust to desired size
-        petImageView.setFitHeight(200); // Adjust to desired size
+        petImageView.setFitWidth(200);
+        petImageView.setFitHeight(200);
         petImageView.setPreserveRatio(true);
 
-        // Add click functionality to the image itself
         petImageView.setOnMouseClicked(e -> {
             selectedPetNumber = number; // Store the selected pet number
             nameInput.clear(); // Clear the input field for a fresh start
@@ -252,8 +327,9 @@ public class GameplayScreen {
                         "-fx-border-radius: 10; " +
                         "-fx-background-radius: 10;");
         selectButton.setOnAction(e -> {
-            selectedPetNumber = number; // Store the selected pet number
-            nameInput.clear(); // Clear the input field for a fresh start
+            // feedbackController.playSoundEffect("buttonSelect");
+            selectedPetNumber = number;
+            nameInput.clear();
             namingModal.setVisible(true);
         });
 
@@ -308,8 +384,9 @@ public class GameplayScreen {
         Button cancelButton = new Button("Cancel");
         cancelButton.setStyle("-fx-background-color: transparent;");
         cancelButton.setOnAction(e -> {
+            feedbackController.playSoundEffect("buttonSelect");
             namingModal.setVisible(false);
-            toggleUIElementsVisibility(false); // Show UI elements when modal is closed
+            toggleUIElementsVisibility(false);
         });
 
         Button confirmButton = new Button("Confirm");
@@ -319,11 +396,27 @@ public class GameplayScreen {
                         "-fx-background-radius: 15; " +
                         "-fx-padding: 10 20;");
         confirmButton.setOnAction(e -> {
+            feedbackController.playSoundEffect("buttonSelect");
             String petName = nameInput.getText();
             if (!petName.trim().isEmpty()) {
+                // Create the Pet object
+                Pet selectedPet = new Pet(petName, 100, 100, 100, 100, new ArrayList<>(), selectedPetNumber);
+
+                // Save the pet to the player
+                gameState.getPlayer().setCurrentPet(selectedPet);
+
+                // Save the updated game state
+                gameLauncher.saveGame(gameState);
+
                 namingModal.setVisible(false);
-                toggleUIElementsVisibility(true); // Show UI elements when modal is closed
-                setupMainGameplay(contentLayout, petName); // Proceed with gameplay
+                toggleUIElementsVisibility(true);
+
+                isPetConfirmed = true;
+                // Start stat decay now that pet is confirmed
+                controller.startStatDecay();
+
+                // Proceed to main gameplay
+                gameLauncher.showGameplay(false, petName, gameState.getSaveSlot());
             } else {
                 nameInput.setPromptText("Please enter a name!");
             }
@@ -349,14 +442,8 @@ public class GameplayScreen {
 
         // Initially hide the UI elements
         namingModal.visibleProperty().addListener((observable, oldValue, newValue) -> {
-            toggleUIElementsVisibility(!newValue); // Hide UI when modal is shown
+            toggleUIElementsVisibility(!newValue);
         });
-    }
-
-    public void updateScore(int increment) {
-        score += increment; // Add to the score
-        scoreText.setText("Score: " + score); // Update the score text
-        System.out.println("Score updated: " + score); // Debug log
     }
 
     public void setupMainGameplay(VBox root, String petName) {
@@ -365,17 +452,17 @@ public class GameplayScreen {
         // Top bar with back button and welcome message
         HBox topBar = new HBox();
         topBar.setAlignment(Pos.CENTER_LEFT);
-        topBar.setPadding(new Insets(20, 0, 10, 70)); // Adjust spacing
+        topBar.setPadding(new Insets(20, 0, 10, 70));
         topBar.setSpacing(10);
 
         Label welcomeLabel = new Label("Welcome, " + petName + "!");
         welcomeLabel.setStyle("-fx-font-size: 24; -fx-font-weight: bold;");
 
         // Score Text
-        scoreText = new Text("Score: " + score);
+        scoreText = new Text("Score: " + controller.getPlayerScore());
         scoreText.setFont(Font.font("Arial", 24));
         scoreText.setStyle("-fx-font-weight: bold;");
-        HBox.setHgrow(scoreText, Priority.ALWAYS); // Push it to the right
+        HBox.setHgrow(scoreText, Priority.ALWAYS);
 
         topBar.getChildren().addAll(welcomeLabel, scoreText);
         root.getChildren().add(topBar);
@@ -393,13 +480,17 @@ public class GameplayScreen {
         VBox rightSide = new VBox();
         rightSide.setAlignment(Pos.CENTER);
 
+        // Get the petType from the GameState through the controller
+        int petType = controller.getPetType();
+        String petState = controller.getMainPetState();
+
         // Load the selected pet's image dynamically
         try {
-            String imagePath = String.format("/sprite states/pet%d/normal-state.png", selectedPetNumber);
-            Image petImage = new Image(imagePath); // Dynamically set path
-            ImageView petImageView = new ImageView(petImage);
-            petImageView.setFitWidth(500); // Adjust width
-            petImageView.setFitHeight(800); // Adjust height
+            String imagePath = String.format("/sprite states/pet%d/normal-state.png", petType, petState);
+            Image petImage = new Image(getClass().getResourceAsStream(imagePath)); // Dynamically set path
+            petImageView = new ImageView(petImage);
+            petImageView.setFitWidth(500);
+            petImageView.setFitHeight(800);
             petImageView.setPreserveRatio(true);
 
             VBox.setMargin(petImageView, new Insets(20, -200, 0, 0));
@@ -421,11 +512,11 @@ public class GameplayScreen {
     }
 
     private StackPane createStatsContainer() {
-        VBox statsBox = new VBox(10); // Space between bars
+        VBox statsBox = new VBox(10);
         statsBox.setAlignment(Pos.BOTTOM_LEFT);
         statsBox.setPadding(new Insets(10));
 
-        String[] statNames = { "Health", "Hunger", "Happiness", "Energy" };
+        String[] statNames = { "Health", "Hunger", "Happiness", "Sleep" };
         String[] fontAwesomeIcon = { "fas-heart", "fas-utensils", "fas-smile", "fas-bolt" };
 
         for (int i = 0; i < fontAwesomeIcon.length; i++) {
@@ -481,6 +572,8 @@ public class GameplayScreen {
 
         // Allow clicking the bar
         statBar.setOnMouseClicked(event -> {
+            feedbackController.playSoundEffect("buttonSelect");
+
             System.out.println("Stat bar clicked: " + title);
             statModal.setTitle(title);
             statModal.setVisible(true);
@@ -504,8 +597,17 @@ public class GameplayScreen {
         Node statBar = statsContainer.lookup("#" + statName);
         if (statBar != null && statBar instanceof HBox) {
             HBox statHBox = (HBox) statBar;
-            Pane fillBar = (Pane) statHBox.getChildren().get(0); // First child is the fillBar
+            Pane fillBar = (Pane) statHBox.getChildren().get(0);
             fillBar.setPrefWidth((percentage / 100) * statHBox.getPrefWidth());
+
+            // Change the color based on the percentage
+            if (percentage < 25) {
+                fillBar.setStyle("-fx-background-color: red; -fx-border-radius: 20; -fx-background-radius: 20;");
+            } else if (percentage < 50) {
+                fillBar.setStyle("-fx-background-color: orange; -fx-border-radius: 20; -fx-background-radius: 20;");
+            } else {
+                fillBar.setStyle("-fx-background-color: green; -fx-border-radius: 20; -fx-background-radius: 20;");
+            }
         } else {
             System.out.println("Stat bar not found for: " + statName);
         }
@@ -535,11 +637,12 @@ public class GameplayScreen {
         settingsButton.setStyle("-fx-background-color: transparent;");
 
         settingsButton.setOnAction(e -> {
+            feedbackController.playSoundEffect("buttonSelect");
             System.out.println("Settings button clicked!");
 
             // Show the settings modal
             if (settingsModal == null) {
-                settingsModal = new SettingsModal();
+                settingsModal = new SettingsModal(feedbackController);
             }
             settingsModal.setVisible(true);
         });
@@ -547,9 +650,44 @@ public class GameplayScreen {
         return settingsButton;
     }
 
+    private Button createPauseButton() {
+        Button pauseButton = new Button();
+        FontIcon pauseIcon = new FontIcon("fas-pause");
+        pauseIcon.setIconSize(20);
+        pauseIcon.setIconColor(Color.BLACK);
+
+        Circle pauseCircle = new Circle(25);
+        pauseCircle.setFill(Color.WHITE);
+        pauseCircle.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 5);");
+
+        StackPane buttonContent = new StackPane(pauseCircle, pauseIcon);
+        pauseButton.setGraphic(buttonContent);
+        pauseButton.setStyle("-fx-background-color: transparent;");
+
+        pauseButton.setOnAction(e -> {
+            System.out.println("Pause button clicked!");
+
+            // Stop music and periodic updates
+            if (feedbackController != null) {
+                feedbackController.stopBackgroundMusic();
+            }
+            if (controller != null) {
+                controller.stopStatDecay();
+                stopPeriodicUpdates();
+            }
+
+            // Show the pause modal
+            if (pauseModal != null) {
+                pauseModal.show();
+            }
+        });
+
+        return pauseButton;
+    }
+
     private Button createGoBackButton() {
         Button goBackButton = new Button();
-        FontIcon backIcon = new FontIcon("fas-chevron-left"); // Font Awesome chevron icon
+        FontIcon backIcon = new FontIcon("fas-chevron-left");
         backIcon.setIconSize(20);
         backIcon.setIconColor(Color.BLACK);
 
@@ -562,7 +700,9 @@ public class GameplayScreen {
         goBackButton.setStyle("-fx-background-color: transparent;");
 
         goBackButton.setOnAction(e -> {
+            feedbackController.playSoundEffect("buttonSelect");
             System.out.println("Go Back button clicked!");
+            gameLauncher.saveGame(gameState);
             returnToMainMenu(); // Navigate back to the main menu
         });
 
@@ -584,8 +724,11 @@ public class GameplayScreen {
         inventoryButton.setStyle("-fx-background-color: transparent;");
 
         inventoryButton.setOnAction(e -> {
+            feedbackController.playSoundEffect("buttonSelect");
             System.out.println("Inventory button clicked!");
             if (inventoryModal != null) {
+                inventoryModal.refreshAllInventoryPages();
+                inventoryModal.goToFirstPage();
                 inventoryModal.setVisible(true);
             }
         });
@@ -594,22 +737,34 @@ public class GameplayScreen {
     }
 
     private void startPeriodicUpdates() {
-        Timer timer = new Timer(true); // Daemon timer
-        timer.scheduleAtFixedRate(new TimerTask() {
+        stopPeriodicUpdates(); // Stop any existing timer before starting a new one
+
+        periodicUpdateTimer = new Timer(true); // Create a new daemon timer
+        periodicUpdateTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 Platform.runLater(() -> {
-                    refreshPetStats();
-                    refreshPlayerInfo();
-                    refreshInventory();
-                    updatePetSprite();
+                    if (isPetConfirmed) {
+                        refreshPetStats();
+                        refreshPlayerInfo();
+                        refreshInventory();
+                        updatePetSprite();
+                    }
                 });
             }
-        }, 0, 60000); // Refresh every 1 min
+        }, 0, 1000); // Refresh every 1 second
+    }
+
+    public void stopPeriodicUpdates() {
+        if (periodicUpdateTimer != null) {
+            periodicUpdateTimer.cancel(); // Cancel the timer
+            periodicUpdateTimer = null;
+            System.out.println("Periodic updates stopped.");
+        }
     }
 
     private void refreshPetStats() {
-        // Assuming you have labels or progress bars for each stat in the UI
+
         System.out.println("Refreshing pet stats...");
 
         // Retrieve stats from the controller
@@ -629,22 +784,22 @@ public class GameplayScreen {
     }
 
     private void refreshPlayerInfo() {
-        // Assuming you have labels for the player's name and score
         System.out.println("Refreshing player info...");
 
+        // Fetch updated player info
         String playerName = controller.getPlayerName();
         int playerScore = controller.getPlayerScore();
 
         // Update UI elements
-        Label playerNameLabel = (Label) root.lookup("#playerNameLabel"); // Example
-        Label playerScoreLabel = (Label) root.lookup("#playerScoreLabel"); // Example
-
+        Label playerNameLabel = (Label) root.lookup("#playerNameLabel");
         if (playerNameLabel != null) {
             playerNameLabel.setText("Player: " + playerName);
         }
 
-        if (playerScoreLabel != null) {
-            playerScoreLabel.setText("Score: " + playerScore);
+        if (scoreText != null) {
+            scoreText.setText("Score: " + playerScore);
+        } else {
+            System.err.println("Score text is null and cannot be updated!");
         }
 
         System.out.println("Player info refreshed: Name=" + playerName + ", Score=" + playerScore);
@@ -656,9 +811,8 @@ public class GameplayScreen {
         // Retrieve inventory summary from the controller
         Map<String, Integer> inventorySummary = controller.getInventorySummary();
 
-        // Update the inventory UI (e.g., labels for food and gift items)
-        Label foodItemsLabel = (Label) root.lookup("#foodItemsLabel"); // Example
-        Label giftItemsLabel = (Label) root.lookup("#giftItemsLabel"); // Example
+        Label foodItemsLabel = (Label) root.lookup("#foodItemsLabel");
+        Label giftItemsLabel = (Label) root.lookup("#giftItemsLabel");
 
         if (foodItemsLabel != null) {
             foodItemsLabel.setText("Food Items: " + inventorySummary.getOrDefault("Food Items", 0));
@@ -673,37 +827,21 @@ public class GameplayScreen {
     }
 
     private void updatePetSprite() {
-        // Get the current state of the pet
-        String petState = controller.getMainPetState();
-        String petName = controller.getPetName(); // Get the name of the current pet
+        if (gameState.getPlayer().getCurrentPet() != null) {
+            int petType = gameState.getPlayer().getCurrentPet().getPetType();
+            String state = controller.getPetMainState();
 
-        // Construct the image path dynamically
-        String imagePath = "/sprite states/" + petName + "/";
+            try {
+                String imagePath = String.format("/sprite states/pet%d/%s-state.png", petType, state);
+                System.out.println("Loading image: " + imagePath);
 
-        // Append the appropriate image based on the pet's state
-        switch (petState) {
-            case "dead":
-                imagePath += "dead-state.png";
-                break;
-            case "sleeping":
-                imagePath += "sleeping-state.png";
-                break;
-            case "angry":
-                imagePath += "angry-state.png";
-                break;
-            case "hungry":
-                imagePath += "hungry-state.png";
-                break;
-            default:
-                imagePath += "normal-state.png"; // Default to normal state
-        }
-
-        try {
-            // Load the image and set it to the pet image view
-            petImageView.setImage(new Image(getClass().getResourceAsStream(imagePath)));
-        } catch (Exception e) {
-            System.err.println("Failed to load image for pet sprite: " + imagePath);
-            petImageView.setImage(new Image(getClass().getResourceAsStream("/sprite states/normal-state.png")));
+                Image petImage = new Image(getClass().getResourceAsStream(imagePath));
+                petImageView.setImage(petImage);
+            } catch (Exception e) {
+                System.err.println("Failed to load image for pet sprite: " + e.getMessage());
+            }
+        } else {
+            System.err.println("Pet is null, cannot update sprite.");
         }
     }
 
@@ -730,8 +868,12 @@ public class GameplayScreen {
     }
 
     private void returnToMainMenu() {
+        stopPeriodicUpdates();
+        controller.stopGameplay();
         gameLauncher.showMainMenu();
         stopMusic();
+        feedbackController.playBackgroundMusic("MainMenu");
+        System.out.println("Returned to main menu.");
     }
 
     public void stopMusic() {

@@ -17,7 +17,7 @@ public class FeedbackController {
 
     public FeedbackController(Feedback feedbackModel) {
         this.feedbackModel = feedbackModel;
-        this.currentMusicPlayer = null; // No music playing initially
+        this.currentMusicPlayer = null;
         this.soundEffects = new HashMap<>();
 
         // Preload sound effects
@@ -25,14 +25,14 @@ public class FeedbackController {
     }
 
     // Preload sound effects into map
-    private void preloadSoundEffects() {
-        soundEffects.put("buttonSelect", loadAudioClip("src/main/resources/sound effects/button-select.mp3"));
-        soundEffects.put("giftEffect", loadAudioClip("src/main/resources/sound effects/gift-effect.mp3"));
-        soundEffects.put("pauseMenu", loadAudioClip("src/main/resources/sound effects/pause-menu.mp3"));
-        soundEffects.put("reward1", loadAudioClip("src/main/resources/sound effects/reward.mp3"));
-        soundEffects.put("reward2", loadAudioClip("src/main/resources/sound effects/reward-2.mp3"));
-        soundEffects.put("reward3", loadAudioClip("src/main/resources/sound effects/reward-3.mp3"));
-        soundEffects.put("warning", loadAudioClip("src/main/resources/sound effects/warning.mp3"));
+    public void preloadSoundEffects() {
+        soundEffects.put("buttonSelect", loadAudioClip("src/main/resources/sound effects/button-select.wav"));
+        soundEffects.put("giftEffect", loadAudioClip("src/main/resources/sound effects/gift-effect.wav"));
+        soundEffects.put("pauseMenu", loadAudioClip("src/main/resources/sound effects/pause-menu.wav"));
+        soundEffects.put("reward1", loadAudioClip("src/main/resources/sound effects/reward.wav"));
+        soundEffects.put("reward2", loadAudioClip("src/main/resources/sound effects/reward-2.wav"));
+        soundEffects.put("reward3", loadAudioClip("src/main/resources/sound effects/reward-3.wav"));
+        soundEffects.put("warning", loadAudioClip("src/main/resources/sound effects/warning.wav"));
     }
 
     // Load clip from file path
@@ -54,11 +54,6 @@ public class FeedbackController {
         }
 
         String musicFile = getMusicFileForView(viewName);
-
-        // Stop the current music if it's different.. no overlapping music
-        if (currentMusicPlayer != null && !currentMusicPlayer.getMedia().getSource().endsWith(musicFile)) {
-            stopBackgroundMusic();
-        }
 
         // Start new music
         if (currentMusicPlayer == null) {
@@ -109,5 +104,39 @@ public class FeedbackController {
         } else {
             System.err.println("Sound effect not found for action: " + action);
         }
+    }
+
+    // Toggle background music on or off
+    public void toggleMusic() {
+        if (feedbackModel.isMusicOn()) {
+            // Turn off music
+            stopBackgroundMusic();
+        } else {
+            // Turn on music
+            if (currentMusicPlayer != null) {
+                currentMusicPlayer.play();
+                System.out.println("Resuming background music.");
+            } else {
+                // If no MediaPlayer exists, start playing again with the last view's music
+                System.out.println("Starting background music again.");
+                playBackgroundMusic("Gameplay"); // Replace with the last known view if needed
+            }
+        }
+        feedbackModel.toggleMusic();
+        System.out.println("Music toggled: " + feedbackModel.isMusicOn());
+    }
+
+    // Toggle sound effects on or off
+    public void toggleSfx() {
+        feedbackModel.toggleSfx();
+        System.out.println("Sound effects toggled: " + feedbackModel.isSfxOn());
+    }
+
+    public boolean isMusicOn() {
+        return feedbackModel.isMusicOn();
+    }
+
+    public boolean isSfxOn() {
+        return feedbackModel.isSfxOn();
     }
 }

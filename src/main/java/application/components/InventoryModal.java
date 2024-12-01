@@ -13,20 +13,27 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import application.controllers.FeedbackController;
+import application.model.GameState;
+
 public class InventoryModal extends StackPane {
 
-    private VBox modalContent; // Main content container
-    private StackPane closeButtonContainer; // Dynamic close/back button container
-    private VBox inventoryPage; // First page
-    private VBox rewardPage; // Second page
+    private VBox modalContent;
+    private StackPane closeButtonContainer;
+    private VBox inventoryPage;
+    private VBox rewardPage;
+    private GameState gameState;
+    private FeedbackController feedbackController;
 
-    private HashMap<String, Integer> clickCounts; // Track clicks for each button
+    private HashMap<String, Integer> clickCounts;
     private HashMap<String, Timer> timers;
 
-    public InventoryModal() {
-        this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);"); // Dim background
-        this.setAlignment(Pos.CENTER); // Center modal on screen
-        this.setVisible(false); // Initially hidden
+    public InventoryModal(GameState gameState, FeedbackController feedbackController) {
+        this.gameState = gameState;
+        this.feedbackController = feedbackController;
+        this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        this.setAlignment(Pos.CENTER);
+        this.setVisible(false);
 
         // Initialize click counts and timers
         clickCounts = new HashMap<>();
@@ -83,16 +90,22 @@ public class InventoryModal extends StackPane {
         VBox foodExtras = createExtrasSection(
                 new String[] { "fas-carrot", "fas-apple-alt", "fas-bacon" },
                 new String[] { "Vegetable", "Fruit", "Meat" },
-                new int[] { 5, 3, 2 } // Example quantities
-        );
+                new int[] {
+                        gameState.getPlayer().getInventory().getFoodItems("Vegetable"),
+                        gameState.getPlayer().getInventory().getFoodItems("Fruit"),
+                        gameState.getPlayer().getInventory().getFoodItems("Meat")
+                });
 
         // Gift Section
         VBox giftSection = createInventoryItem("fas-gift", "Gifts");
         VBox giftExtras = createExtrasSection(
                 new String[] { "fas-football-ball", "fas-baseball-ball", "fas-home" },
                 new String[] { "Toy", "Ball", "Play Place" },
-                new int[] { 4, 1, 0 } // Example quantities
-        );
+                new int[] {
+                        gameState.getPlayer().getInventory().getGiftItems("Toy"),
+                        gameState.getPlayer().getInventory().getGiftItems("Ball"),
+                        gameState.getPlayer().getInventory().getGiftItems("Play Place")
+                });
 
         // Arrange sections
         VBox foodContainer = new VBox(10, foodSection, foodExtras);
@@ -112,6 +125,7 @@ public class InventoryModal extends StackPane {
                         "-fx-padding: 10 20;");
         VBox.setMargin(addItemButton, new Insets(20, 0, 0, 0));
         addItemButton.setOnAction(e -> goToRewardPage()); // Navigate to reward page
+        feedbackController.playSoundEffect("buttonSelect");
 
         page.getChildren().addAll(modalTitle, inventoryItems, addItemButton);
         return page;
@@ -119,7 +133,7 @@ public class InventoryModal extends StackPane {
 
     private void handleRewardButtonClick(String item) {
         final int MAX_CLICKS = 5; // Number of clicks needed for a reward
-        final long TIME_LIMIT_MS = 5000; // 5 seconds in milliseconds
+        final long TIME_LIMIT_MS = 5000; // 5 seconds
 
         // Initialize click count if it doesn't exist
         clickCounts.putIfAbsent(item, 0);
@@ -140,31 +154,71 @@ public class InventoryModal extends StackPane {
             int rewardsGranted = currentCount / MAX_CLICKS; // Full rewards
             int remainingClicks = currentCount % MAX_CLICKS; // Extra clicks to carry over
 
-            // Grant the reward(s)
+            // Grant reward(s)
             System.out.println("Rewarded " + rewardsGranted + " " + item + (rewardsGranted > 1 ? "s" : "") + ".");
 
-            // Reset click count but keep the remaining clicks
-            clickCounts.put(item, remainingClicks);
+            // Add the rewarded items to the inventory
+            try {
+                gameState.getPlayer().getInventory().addItem(item.toLowerCase(), rewardsGranted);
+            } catch (Exception e) {
+                System.err.println("Failed to add reward to inventory: " + e.getMessage());
+            }
 
-            // Reset the timer for further clicks
+            // Refresh both pages
+            refreshInventoryPage();
+            refreshRewardsPage();
+
+            // Reset click count but keep remaining clicks
+            clickCounts.put(item, remainingClicks);
         }
 
-        // Start a new timer for this item
+        // Start new timer for this item
         Timer timer = new Timer();
         timers.put(item, timer);
 
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                // Timer expires, reset the click count
+                // Timer expirec reset the click count
                 clickCounts.put(item, 0);
-                timers.remove(item); // Clean up the timer
+                timers.remove(item);
             }
-        }, TIME_LIMIT_MS); // Set the timer to expire after 5 seconds
+        }, TIME_LIMIT_MS); // Set timer to expire after 5 seconds
+    }
+
+    private void refreshRewardsPage() {
+
+        modalContent.getChildren().clear();
+
+        rewardPage = createRewardPage();
+
+        modalContent.getChildren().addAll(closeButtonContainer, rewardPage);
+
+        System.out.println("Rewards page refreshed with updated inventory.");
+    }
+
+    public void refreshInventoryPage() {
+
+        inventoryPage = createInventoryPage();
+
+        // Check if the current visible page is the inventory page
+        if (modalContent.getChildren().contains(inventoryPage)) {
+            modalContent.getChildren().clear();
+            modalContent.getChildren().addAll(closeButtonContainer, inventoryPage);
+        } else {
+            System.out.println("Inventory page is not visible; updated but not displayed.");
+        }
+
+        System.out.println("Inventory page refreshed with updated inventory.");
+    }
+
+    public void refreshAllInventoryPages() {
+        refreshInventoryPage();
+        refreshRewardsPage();
     }
 
     /**
-     * Creates the second page (reward challenge).
+     * Creates second page (reward challenge).
      */
     private VBox createRewardPage() {
         VBox page = new VBox(20);
@@ -180,17 +234,31 @@ public class InventoryModal extends StackPane {
         HBox rewardItems = new HBox(40);
         rewardItems.setAlignment(Pos.CENTER);
 
+        // Food Quantities
+        int[] foodQuantities = {
+                gameState.getPlayer().getInventory().getFoodItems("Vegetable"),
+                gameState.getPlayer().getInventory().getFoodItems("Fruit"),
+                gameState.getPlayer().getInventory().getFoodItems("Meat")
+        };
+
+        // Gift Quantities
+        int[] giftQuantities = {
+                gameState.getPlayer().getInventory().getGiftItems("Toy"),
+                gameState.getPlayer().getInventory().getGiftItems("Ball"),
+                gameState.getPlayer().getInventory().getGiftItems("Play Place")
+        };
+
         // Food Buttons
         VBox foodButtons = createExtrasSection(
                 new String[] { "fas-carrot", "fas-apple-alt", "fas-bacon" },
                 new String[] { "Vegetable", "Fruit", "Meat" },
-                new int[] { 5, 3, 2 });
+                foodQuantities);
 
         // Gift Buttons
         VBox giftButtons = createExtrasSection(
                 new String[] { "fas-football-ball", "fas-baseball-ball", "fas-home" },
                 new String[] { "Toy", "Ball", "Play Place" },
-                new int[] { 4, 1, 0 });
+                giftQuantities);
 
         rewardItems.getChildren().addAll(foodButtons, giftButtons);
 
@@ -199,7 +267,7 @@ public class InventoryModal extends StackPane {
     }
 
     /**
-     * Creates an inventory item (e.g., Food or Gifts).
+     * Creates an inventory item
      */
     private VBox createInventoryItem(String iconLiteral, String labelText) {
         VBox itemContainer = new VBox(10);
@@ -224,14 +292,14 @@ public class InventoryModal extends StackPane {
     }
 
     /**
-     * Creates a section for extra items (e.g., vegetables, toys).
+     * Creates a section for extra items
      */
     private VBox createExtrasSection(String[] iconLiterals, String[] labels, int[] quantities) {
         VBox extrasContainer = new VBox(10);
         extrasContainer.setAlignment(Pos.CENTER);
 
         for (int i = 0; i < iconLiterals.length; i++) {
-            final String currentItem = labels[i]; // Capture the item name (make it final or effectively final)
+            final String currentItem = labels[i]; // Capture the item name
 
             HBox itemContainer = new HBox(10);
             itemContainer.setAlignment(Pos.CENTER_LEFT);
@@ -249,6 +317,7 @@ public class InventoryModal extends StackPane {
             button.setGraphic(new StackPane(circle, icon));
             button.setStyle("-fx-background-color: transparent;");
             button.setOnAction(e -> handleRewardButtonClick(currentItem)); // Use currentItem
+            feedbackController.playSoundEffect("buttonSelect");
 
             // Label with Quantity
             Text label = new Text(labels[i] + ": " + quantities[i]);
@@ -258,14 +327,14 @@ public class InventoryModal extends StackPane {
             itemContainer.getChildren().addAll(button, label);
             extrasContainer.getChildren().add(itemContainer);
         }
-
         return extrasContainer;
+
     }
 
     /**
      * Navigates to the first page of the inventory.
      */
-    private void goToFirstPage() {
+    public void goToFirstPage() {
         setCloseIcon(); // Show 'X' close icon
         modalContent.getChildren().clear();
         modalContent.getChildren().addAll(closeButtonContainer, inventoryPage);
@@ -295,12 +364,13 @@ public class InventoryModal extends StackPane {
         closeButton.setGraphic(new StackPane(closeCircle, closeIcon));
         closeButton.setStyle("-fx-background-color: transparent;");
         closeButton.setOnAction(e -> this.setVisible(false)); // Close modal
+        feedbackController.playSoundEffect("buttonSelect");
 
         closeButtonContainer.getChildren().add(closeButton);
     }
 
     /**
-     * Sets the left-chevron icon for the reward page.
+     * Sets the left chevron icon for the reward page.
      */
     private void setBackIcon() {
         closeButtonContainer.getChildren().clear();
@@ -314,6 +384,7 @@ public class InventoryModal extends StackPane {
         backButton.setGraphic(new StackPane(backCircle, chevronIcon));
         backButton.setStyle("-fx-background-color: transparent;");
         backButton.setOnAction(e -> goToFirstPage()); // Navigate to first page
+        feedbackController.playSoundEffect("buttonSelect");
 
         closeButtonContainer.getChildren().add(backButton);
     }

@@ -4,6 +4,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import application.GameLauncher;
 import application.components.SettingsModal;
+import application.controllers.FeedbackController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -23,9 +24,11 @@ public class MainMenuScreen {
 
     private GameLauncher gameLauncher; // Reference to GameLauncher
     private SettingsModal settingsModal;
+    private FeedbackController feedbackController;
 
-    public MainMenuScreen(GameLauncher gameLauncher) {
+    public MainMenuScreen(GameLauncher gameLauncher, FeedbackController feedbackController) {
         this.gameLauncher = gameLauncher;
+        this.feedbackController = feedbackController;
     }
 
     public Scene getScene() {
@@ -33,7 +36,7 @@ public class MainMenuScreen {
         root.setStyle("-fx-background-color: #f5f5f5;");
 
         // Initialize settingsModal
-        settingsModal = new SettingsModal();
+        settingsModal = new SettingsModal(feedbackController);
         settingsModal.setVisible(false);
 
         settingsModal.setOnDoneAction(() -> settingsModal.hide());
@@ -69,6 +72,9 @@ public class MainMenuScreen {
 
         StackPane.setAlignment(settingsButton, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(settingsButton, new Insets(20));
+
+        // Start main menu music
+        feedbackController.playBackgroundMusic("MainMenu");
 
         return new Scene(layeredRoot);
     }
@@ -114,9 +120,14 @@ public class MainMenuScreen {
         menuItemBox.getChildren().addAll(menuIcon, menuText);
 
         menuItemBox.setOnMouseClicked(event -> {
+
+            feedbackController.playSoundEffect("buttonSelect");
+
+            feedbackController.stopBackgroundMusic();
+
             switch (text) {
                 case "Start New":
-                    gameLauncher.showGameplay(true);
+                    gameLauncher.showSaveLoadScreen();
                     break;
                 case "Load Game":
                     gameLauncher.showSaveLoadScreen();

@@ -7,18 +7,18 @@ public class Gunchi extends Pet {
     // Default constructor for Ash
     public Gunchi() {
         super(
-            "Gunchi",               // Name of the pet
-            100,                 // Initial health
-            100,                 // Initial sleep level
-            100,                 // Initial fullness
-            100,                 // Initial happiness
-            new ArrayList<>()    // Initial states (empty list since the pet starts as normal)
-        );
+                "Gunchi", // Name of the pet
+                100, // Initial health
+                100, // Initial sleep level
+                100, // Initial fullness
+                100, // Initial happiness
+                new ArrayList<>(), // Initial states (empty list since the pet starts as normal)
+                2);
     }
 
     @Override
     public void adjustStats() {
-        this.setSleep(this.getSleep() - 2); 
+        this.setSleep(this.getSleep() - 2);
         this.setFullness(this.getFullness() - 4);
         this.setHappiness(this.getHappiness() - 3);
 
