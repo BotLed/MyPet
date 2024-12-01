@@ -1,6 +1,6 @@
 package application;
 
-import application.controller.ParentalControlController;
+import application.controllers.ParentalControlController;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -39,37 +39,32 @@ public class GameLauncher extends Application {
     private Feedback feedbackModel;
     private FeedbackController feedbackController;
 
-    //Initialize the ParentalControlController 
+    // Initialize the ParentalControlController
     private ParentalControlController parentalControlController;
 
-    //volatile ensures guaranteed variable vis for thread
+    // volatile ensures guaranteed variable vis for thread
     private volatile boolean withinTime = true;
 
-    //time played in mins
-    private int totalTimePlayed; 
+    // time played in mins
+    private int totalTimePlayed;
     private int numberOfLaunches;
-
 
     @Override
     public void start(Stage primaryStage) {
 
         this.primaryStage = primaryStage;
 
-
         this.parentalControlController = new ParentalControlController();
 
-
-        if(parentalControlController.isEnabled()){
-            if(parentalControlController.isWithinAllowedTime()){
+        if (parentalControlController.isEnabled()) {
+            if (parentalControlController.isWithinAllowedTime()) {
                 this.withinTime = true;
-            }else{
+            } else {
                 this.withinTime = false;
             }
-        }else{
+        } else {
             this.withinTime = true;
         }
-    
-
 
         // Initialize feedback model and controller
         feedbackModel = new Feedback(true, true);
@@ -87,10 +82,10 @@ public class GameLauncher extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
 
-        //increments num of launches to JSON at startup
+        // increments num of launches to JSON at startup
         parentalControlController.incrementNumberOfLaunches();
 
-        //starting thread to check if within time
+        // starting thread to check if within time
         ParentalMonitor();
 
     }
@@ -136,7 +131,8 @@ public class GameLauncher extends Application {
     }
 
     public void showParentalControlScreen() {
-        ParentalControlScreen parentalControlScreen = new ParentalControlScreen(this, primaryStage, parentalControlController);
+        ParentalControlScreen parentalControlScreen = new ParentalControlScreen(this, primaryStage,
+                parentalControlController);
         primaryStage.setScene(parentalControlScreen.getScene());
     }
 
@@ -186,73 +182,66 @@ public class GameLauncher extends Application {
     }
 
     /**
-     * Uses a daemon background thread, (so that it properly ends on closing the application), 
+     * Uses a daemon background thread, (so that it properly ends on closing the
+     * application),
      * checks every minute if access allowed to startnew game and load game buttons
      */
-    private void ParentalMonitor(){
+    private void ParentalMonitor() {
         Thread monitorThread = new Thread(() -> {
-            while(true){
-                
-                try{
+            while (true) {
+
+                try {
                     Thread.sleep(60000);
 
-                    //increment the total time played by a minute and save directly to JSON (so saved even on crash)
+                    // increment the total time played by a minute and save directly to JSON (so
+                    // saved even on crash)
                     parentalControlController.incrementTotalTimePlayed();
 
-                }catch(Exception e){
+                } catch (Exception e) {
                     System.err.println("An unexpected error has occurred in ParentalMonitor thread: ");
                     e.printStackTrace();
                 }
-                if(parentalControlController.isEnabled()){
-                    if(parentalControlController.isWithinAllowedTime()){
+                if (parentalControlController.isEnabled()) {
+                    if (parentalControlController.isWithinAllowedTime()) {
                         this.withinTime = true;
-                    } 
-                    else{
+                    } else {
                         this.withinTime = false;
                     }
-                }
-                else{
+                } else {
                     this.withinTime = true;
                 }
 
             }
         });
-        
-        monitorThread.setDaemon(true); //allows the thread to exit when the application closes
+
+        monitorThread.setDaemon(true); // allows the thread to exit when the application closes
         monitorThread.start();
     }
 
-    public boolean getWithinTime(){
+    public boolean getWithinTime() {
         return this.withinTime;
     }
 
-    public boolean checkWithinTime(){
-        if(parentalControlController.isEnabled()){
-            if(parentalControlController.isWithinAllowedTime()){
+    public boolean checkWithinTime() {
+        if (parentalControlController.isEnabled()) {
+            if (parentalControlController.isWithinAllowedTime()) {
                 this.withinTime = true;
-            } 
-            else{
+            } else {
                 this.withinTime = false;
             }
-        }
-        else{
+        } else {
             this.withinTime = true;
         }
         return this.withinTime;
     }
 
-    public int getNumberOfLaunches(){
+    public int getNumberOfLaunches() {
         return numberOfLaunches;
     }
-    
-    public int getTotalTimePlayed(){
+
+    public int getTotalTimePlayed() {
         return totalTimePlayed;
     }
-
-
-
-
-
 
     public static void main(String[] args) {
         launch(args);

@@ -1,19 +1,19 @@
 {
   "player": {
     "name": "Player",
-    "score": 0,
+    "score": 5,
     "currentPet": {
       "name": null,
       "currentPetStates": [],
       "health": 100,
-      "sleep": 100,
-      "fullness": 100,
-      "happiness": 100,
+      "sleep": 88,
+      "fullness": 45,
+      "happiness": 38,
       "petType": 1
     },
     "inventory": {
-      "foodItems": { "fruit": 10, "meat": 10, "vegetable": 10 },
-      "giftItems": { "ball": 0, "play place": 10, "toy": 10 }
+      "foodItems": { "fruit": 0, "meat": 1, "vegetable": 2 },
+      "giftItems": { "ball": 1, "play place": 0, "toy": 0 }
     }
   },
   "saveSlot": 3
