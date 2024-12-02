@@ -71,7 +71,7 @@ public class GameplayScreen {
         this.controller = controller;
 
         // Initialize GameplayController with GameState
-        this.controller = new GameplayController(gameState);
+        // this.controller = new GameplayController(gameState);
         this.inventoryModal = new InventoryModal(gameState, feedbackController);
         controller.setOnInventoryUpdated(() -> inventoryModal.refreshInventoryPage());
 
@@ -697,7 +697,7 @@ public class GameplayScreen {
                 feedbackController.stopBackgroundMusic();
             }
             if (controller != null) {
-                controller.stopStatDecay();
+                // controller.stopStatDecay();
                 stopPeriodicUpdates();
             }
 
@@ -793,6 +793,7 @@ public class GameplayScreen {
         if (periodicUpdateTimer != null) {
             periodicUpdateTimer.cancel(); // Cancel the timer
             periodicUpdateTimer = null;
+            controller.stopStatDecay();
             System.out.println("Periodic updates stopped.");
         }
     }
@@ -906,6 +907,7 @@ public class GameplayScreen {
         controller.stopGameplay();
         gameLauncher.showMainMenu();
         stopMusic();
+
         feedbackController.playBackgroundMusic("MainMenu");
 
         System.out.println("Returned to main menu.");

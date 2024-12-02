@@ -6,6 +6,7 @@ import application.GameLauncher;
 import application.components.SettingsModal;
 import application.components.WarningModal;
 import application.controllers.FeedbackController;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -31,9 +32,11 @@ public class MainMenuScreen {
     public MainMenuScreen(GameLauncher gameLauncher, FeedbackController feedbackController) {
         this.gameLauncher = gameLauncher;
         this.feedbackController = feedbackController;
+
     }
 
     public Scene getScene() {
+
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #fff4e0;");
 
