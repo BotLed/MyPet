@@ -219,7 +219,7 @@ public class MainMenuScreen {
 
         // Footer text
         Text footerText = new Text(
-                "CS2212 Fall 2024 - Created by Group 31: Abdul-Wali Raza Khan, Abdulsalam Shola Ameen, Andrey Velichko, Maximilian Hines Cope, Ryan Frank Wagner");
+                "CS2212 Fall 2024 (Western University) - Created by Group 31: Abdul-Wali Raza Khan, Abdulsalam Shola Ameen, Andrey Velichko, Maximilian Hines Cope, Ryan Frank Wagner");
         footerText.setFont(Font.font("Arial", 12));
         footerText.setFill(Color.GRAY);
 

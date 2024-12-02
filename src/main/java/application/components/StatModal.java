@@ -215,8 +215,30 @@ public class StatModal extends StackPane {
                         "-fx-text-fill: #ffffff; " +
                         "-fx-background-radius: 15; " +
                         "-fx-padding: 10 20;");
-        button.setOnAction(e -> action.run());
-        feedbackController.playSoundEffect("reward3");
+        button.setOnAction(e -> {
+
+            // Disable the button if it's one of the targeted buttons
+            if (label.equals("Play +15") || label.equals("Take to Vet")) {
+                button.setDisable(true); // Disable the button
+                action.run(); // Execute the button's action
+                feedbackController.playSoundEffect("reward3");
+
+                // Start a thread to re enable the button after 10 seconds
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(10000); // Wait for 10 seconds
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    Platform.runLater(() -> button.setDisable(false)); // Re enable the button
+                }).start();
+            } else {
+                // Execute action for other buttons without disabling
+                action.run();
+                feedbackController.playSoundEffect("reward3");
+            }
+        });
+
         buttonContainer.getChildren().add(button);
     }
 

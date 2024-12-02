@@ -24,9 +24,14 @@ import application.view.ParentalControlScreen;
 import application.view.SaveLoadScreen;
 import application.view.TutorialScreen;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import java.nio.file.Path;
+import javafx.scene.control.Label;
+import javafx.scene.Node;
 
 public class GameLauncher extends Application {
 
@@ -246,4 +251,35 @@ public class GameLauncher extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
+    public void showGlobalModal(String message) {
+        Scene currentScene = primaryStage.getScene();
+        StackPane rootContainer;
+
+        if (currentScene.getRoot() instanceof StackPane) {
+            rootContainer = (StackPane) currentScene.getRoot();
+        } else {
+            Node currentRoot = currentScene.getRoot();
+            rootContainer = new StackPane();
+            rootContainer.getChildren().add(currentRoot);
+            currentScene.setRoot(rootContainer);
+        }
+
+        // Create the modal
+        StackPane modal = new StackPane();
+        modal.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-border-radius: 15; -fx-background-radius: 15;");
+        modal.setMaxWidth(300);
+        modal.setMaxHeight(100);
+
+        // Create a label for message
+        Label messageLabel = new Label(message);
+        messageLabel.setStyle("-fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;");
+        modal.getChildren().add(messageLabel);
+
+        // Center the modal in the root
+        StackPane.setAlignment(modal, Pos.CENTER);
+        rootContainer.getChildren().add(modal);
+
+    }
+
 }
