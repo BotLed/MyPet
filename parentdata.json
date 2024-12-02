@@ -1,9 +1,11 @@
 {
   "password": "password",
   "allowedHours": [
-    16
+    20,
+    21,
+    22
   ],
-  "enabled": false,
-  "totalTimePlayed": 4,
-  "numberOfLaunches": 2
+  "enabled": true,
+  "totalTimePlayed": 13,
+  "numberOfLaunches": 12
 }

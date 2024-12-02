@@ -95,7 +95,7 @@ public class GameplayScreen {
         // Root container
         root = new VBox();
         root.setPadding(new Insets(0));
-        root.setStyle("-fx-background-color: #fff4e0;");
+        root.setStyle("-fx-background-color: #f5f5f5;");
         root.setAlignment(Pos.TOP_CENTER);
 
         // Fetch values from the controller
@@ -496,6 +496,10 @@ public class GameplayScreen {
             VBox.setMargin(petImageView, new Insets(20, -200, 0, 0));
 
             rightSide.getChildren().add(petImageView);
+
+            // Start the mirroring animation
+            startSpriteMirroring();
+
         } catch (IllegalArgumentException e) {
             System.out.println("Pet image not found: " + e.getMessage());
             // Fallback to placeholder if image not found
@@ -509,6 +513,27 @@ public class GameplayScreen {
 
         contentArea.getChildren().addAll(rightSide);
         root.getChildren().add(contentArea);
+    }
+
+    private void startSpriteMirroring() {
+        if (petImageView == null) {
+            return;
+        }
+
+        new Thread(() -> {
+            while (true) { // Infinite loop to keep the mirroring active
+                try {
+                    Thread.sleep(3700); // Wait for 3.7 sec
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                Platform.runLater(() -> {
+                    // Toggle scaleX to mirror the image
+                    petImageView.setScaleX(petImageView.getScaleX() == 1 ? -1 : 1);
+                });
+            }
+        }).start();
     }
 
     private StackPane createStatsContainer() {
@@ -703,7 +728,16 @@ public class GameplayScreen {
             feedbackController.playSoundEffect("buttonSelect");
             System.out.println("Go Back button clicked!");
             gameLauncher.saveGame(gameState);
-            returnToMainMenu(); // Navigate back to the main menu
+
+            gameLauncher.showGlobalModal("Game saving!");
+
+            // Delay navigation to the main menu by 2 seconds to show saving.
+            new java.util.Timer().schedule(new java.util.TimerTask() {
+                @Override
+                public void run() {
+                    Platform.runLater(() -> returnToMainMenu()); // Navigate back to the main menu
+                }
+            }, 1700); // Delay for 1.8 sec
         });
 
         return goBackButton;
@@ -873,6 +907,7 @@ public class GameplayScreen {
         gameLauncher.showMainMenu();
         stopMusic();
         feedbackController.playBackgroundMusic("MainMenu");
+
         System.out.println("Returned to main menu.");
     }
 

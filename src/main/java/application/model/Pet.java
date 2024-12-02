@@ -105,7 +105,7 @@ public class Pet {
         while (this.sleep < 100) {
             try {
                 // Wait for 2 seconds
-                Thread.sleep(2000);
+                Thread.sleep(1000);
 
                 // Increase sleep by 5
                 this.sleep = Math.min(this.sleep + 25, 100); // Ensures sleep doesn't exceed 100
@@ -200,7 +200,7 @@ public class Pet {
                 applyHappinessPenalty();
                 applyHealthPenalty();
             }
-            if (this.happiness <= 0) {
+            if (this.happiness <= 50) {
                 this.addPetState("angry");
             }
         }
@@ -246,7 +246,7 @@ public class Pet {
         if (this.fullness <= 0) {
             return "hungry";
         }
-        if (this.happiness <= 0) {
+        if (this.happiness <= 50) {
             return "angry";
         }
 
