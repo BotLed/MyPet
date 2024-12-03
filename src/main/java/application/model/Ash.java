@@ -16,16 +16,20 @@ public class Ash extends Pet {
                 3);
     }
 
+
+    /** Adjust's pet's stats by a set interval
+     *  -> Different for each child class
+     */
     @Override
     public void adjustStats() {
         this.setSleep(this.getSleep() - 1);
         this.setFullness(this.getFullness() - 2);
         this.setHappiness(this.getHappiness() - 6);
 
-        this.setSleep(Math.max(this.getSleep(), 0));
+        this.setSleep(Math.max(this.getSleep(), 0)); // Used Math.max so that stats don't go below 0
         this.setFullness(Math.max(this.getFullness(), 0));
         this.setHappiness(Math.max(this.getHappiness(), 0));
 
-        this.checkAndAddState();
+        this.checkAndAddState(); // Check if any pet states should be added after adjusting
     }
 }
