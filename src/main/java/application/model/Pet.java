@@ -200,7 +200,7 @@ public class Pet {
                 applyHappinessPenalty();
                 applyHealthPenalty();
             }
-            if (this.happiness <= 50) {
+            if (this.happiness <= 0) {
                 this.addPetState("angry");
             }
         }
@@ -246,7 +246,7 @@ public class Pet {
         if (this.fullness <= 0) {
             return "hungry";
         }
-        if (this.happiness <= 50) {
+        if (this.happiness <= 0) {
             return "angry";
         }
 
