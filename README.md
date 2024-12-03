@@ -80,7 +80,7 @@ The following libraries and tools are required to run or build **My Pet**:
    Be sure to replace **/path/to/javafx-sdk**
 
    ```bash
-   java --module-path /path/to/javafx-sdk/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar build/libs/MyPet-1.0.jar
+   java --module-path /path/to/javafx-sdk/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar MyPet-1.0.jar
 
 
    ```
@@ -88,7 +88,7 @@ The following libraries and tools are required to run or build **My Pet**:
    for example:
 
    ```bash
-   java --module-path /Users/myname/Downloads/javafx-sdk-23.0.1/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar build/libs/MyPet-1.0.jar
+   java --module-path /Users/myname/Downloads/javafx-sdk-23.0.1/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar MyPet-1.0.jar
 
 
    ```
