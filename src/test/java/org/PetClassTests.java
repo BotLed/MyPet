@@ -17,7 +17,6 @@ public class PetClassTests {
 
     @BeforeEach
     void setUp() {
-        // Create a default pet for use in the tests
         pet = new Pet("example pet", 100, 100, 100, 100, new ArrayList<>(), 1);
     }
 
