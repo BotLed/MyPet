@@ -1,5 +1,5 @@
 <div align="left">
-![Title Image](src/main/resources/MyPetTitle.png)
+<img src='src/main/resources/MyPetTitle.png'></img>
 </div>
 
 ## Description
@@ -81,10 +81,6 @@ The following libraries and tools are required to run or build **My Pet**:
 
    ```bash
    java --module-path /path/to/javafx-sdk-23.0.1/lib --add-modules javafx.controls,javafx.fxml,javafx.media --add-exports javafx.base/com.sun.javafx=ALL-UNNAMED -jar MyPet-1.0.jar
-
-
-
-
    ```
 
    for example:
